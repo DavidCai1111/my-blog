@@ -236,7 +236,7 @@ function call(handle, route, err, req, res, next) {
     - 从`proto`处继承的属性（方法）
     - 继承的`EventEmitter`的原型
     - `route`属性，表示中间件的默认请求路径
-    - `stack`数组，所有的中间件的存放处，中间件会被格式化成形为`{route: route , handle : fn}`的匿名函数存放
+    - `stack`数组，所有的中间件的存放处，中间件会被格式化成形为`{route: route , handle : fn}`的匿名对象存放
     
 而整体的运行过程大致可概括为：
  
