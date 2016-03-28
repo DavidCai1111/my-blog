@@ -12,6 +12,7 @@ console.log(global.module) // undefined
  - 这两个“类全局”对象是在什么时候，怎么生成的？
  - 当 `require` 一个目录时，Node.js 是如何替我们找到具体该执行的文件的？
  - 模块内的代码具体是以何种方式被执行的？
+ - 循环依赖了怎么办？
 
 让我们从 Node.js 项目的 `lib/module.js` 中的代码里，细细看一番，一个文件被 `require` 后，具体发生的故事，从而来解答上面这些问题。
 
@@ -177,6 +178,54 @@ Module.prototype._compile = function(content, filename) {
 ```
 
 至此，一个同步的 `require` 操作便圆满结束啦。
+
+## 循环依赖
+
+通过上文我们已经可以知道，在 `Module._load` 内部方法里 Node.js 在加载模块之前，首先就会把传模块内的 `module` 对象的引用给缓存起来（此时它的 `exports` 属性还是一个空对象），然后执行模块内代码，在这个过程中渐渐为 `module.exports` 对象附上该有的属性。所以当 Node.js 这么做时，出现循环依赖的时候，仅仅只会让循环依赖点取到中间值，而不会让 `require` 死循环卡住。一个经典的例子：
+
+```js
+// a.js
+'use strict'
+console.log('a starting')
+exports.done = false
+var b = require('./b')
+console.log(`in a, b.done=${b.done}`)
+exports.done = true
+console.log('a done')
+```
+
+```js
+// b.js
+'use strict'
+console.log('b start')
+exports.done = false
+let a = require('./a')
+console.log(`in b, a.done=${a.done}`)
+exports.done = true
+console.log('b done')
+```
+
+```js
+// main.js
+'use strict'
+console.log('main start')
+let a = require('./a')
+let b = require('./b')
+console.log(`in main, a.done=${a.done}, b.done=${b.done}`)
+```
+
+执行 `node main.js` ，打印：
+
+```
+main start
+a starting
+b start
+in b, a.done=false => 循环依赖点取到了中间值
+b done
+in a, b.done=true
+a done
+in main, a.done=true, b.done=true
+```
 
 ## 最后
 
