@@ -1,4 +1,4 @@
-之前的[文章](https://segmentfault.com/a/1190000004424485)里有说，在 Node.js 中，流（`stream`）是许许多多原生对象的父类，角色可谓十分重要。但是，当我们沿着“族谱”往上看时，会发现 `EventEmitter` 类是流（`stream`）类的父类，所以可以说，`EventEmitter` 类是 Node.js 的根基类之一，地位可显一般。虽然 `EventEmitter` 类暴露的接口并不多而且十分简单，并且是少数纯 `JavaScript` 实现的模块之一，但因为它的应用实在是太广泛，身份太基础，所以在它的实现里处处闪光着一些优化代码执行效率，和保证极端情况下代码结果正确性的小细节。在了解之后，我们也可以将其使用到我们的日常编码之后，学以致用。
+之前的文章里有说，在 Node.js 中，流（`stream`）是许许多多原生对象的父类，角色可谓十分重要。但是，当我们沿着“族谱”往上看时，会发现 `EventEmitter` 类是流（`stream`）类的父类，所以可以说，`EventEmitter` 类是 Node.js 的根基类之一，地位可显一般。虽然 `EventEmitter` 类暴露的接口并不多而且十分简单，并且是少数纯 `JavaScript` 实现的模块之一，但因为它的应用实在是太广泛，身份太基础，所以在它的实现里处处闪光着一些优化代码执行效率，和保证极端情况下代码结果正确性的小细节。在了解之后，我们也可以将其使用到我们的日常编码之后，学以致用。
 
 好，现在就让我们跟随 Node.js 项目中的 `lib/events.js` 中的代码，来逐一了解：
 
@@ -259,11 +259,10 @@ function _onceWrap(target, type, listener) {
 }
 ```
 
-你可能会问，我既然已经在 `g` 函数中的第一行中移除了当前的监听器，为何还要使用 `fired` 这个 flag ？我个人觉得是因为，防止在并发情况下，出现 `removeListener` 函数还未执行完时，函数再次被调用。所以在执行 `listener.apply` 之前，使用了该 flag 。
+你可能会问，我既然已经在 `g` 函数中的第一行中移除了当前的监听器，为何还要使用 `fired` 这个 flag ？我个人觉得是因为，在 `removeListener` 这个同步方法中，会将这个 `g` 函数暴露出来给 `removeListener` 事件的监听器，所以该 flag 用来保证 `once` 注册的函数只会被调用一次。
 
 ## 最后
 
 分析就到这里啦，在了解了这些做法之后，在今后我们写一些有性能要求的底层工具库等东西时，我们便可以用上它们啦。`EventEmitter` 类的源码并不复杂，并且是纯 `JavaScript` 实现的，所以也非常推荐大家闲时一读。
 
-参考：
-  - https://github.com/nodejs/node/blob/master/lib/events.js
+参考：https://github.com/nodejs/node/blob/master/lib/events.js
