@@ -69,6 +69,6 @@ theme: fexo
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: rsync
-  host: 107.170.199.112
+  host: 159.89.154.191
   user: davidcai
-  root: /home/davidcai/node-app/blog
+  root: /home/davidcai/apps/blog
