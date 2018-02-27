@@ -70,5 +70,5 @@ theme: fexo
 deploy:
   type: rsync
   host: 159.89.154.191
-  user: davidcai
+  user: root
   root: /home/davidcai/apps/blog
