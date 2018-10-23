@@ -86,8 +86,6 @@ Istio 目前支持部署在 Kubernetes，Consul 和个人虚拟机上。
 
 ## 一个基于 Kubernetes + Istio 服务网格的例子
 
-To get some hands-on experience with Istio the sample Bookinfo Application running on kubernetes was used to try some of the traffic management and fault injection features. But first Istio needed to be downloaded
-
 要体验一下基于 Kubernetes + Istio 服务网格的例子，可以使用官方的 [书籍信息应用](https://istio.io/docs/examples/bookinfo/) 。将其部署在 Kubernetes 集群中，然后使用 Istio 来进行流量控制和错误注入。首先需要下载 Istio ：
 
 ```
@@ -125,8 +123,6 @@ kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml
 # 定义不同版本应用的路由规则
 kubectl apply -f samples/bookinfo/networking/destination-rule-all.yaml
 ```
-
-When pointing the browser to application URL the application’s main page can be seen and refreshing it reveals the different application versions.
 
 然后打开浏览器，将 URL 设置为应用的主页 URL ，可以看到一个包含书籍信息的页面，每一次刷新都会展示不同的书籍（并且同时包含了 v1 v2 v3 的书本打分服务）：
 
@@ -275,11 +271,12 @@ Istio 的 Mixer 组件提供了多种基础设施的后端组件用来收集性�
 
 ### 安全
 
-Istio support various means to authenticate services and end users, authorization (Role-based Access Control) to control services in a service mesh as well as auditing tools. A discussion of these topics would go beyond the scope of this article you can refer to the official documentation.
+
+Istio 支持多种服务到服务和服务到终端用户的认证机制，既支持 RBAC 也提供了审计工具。这些话题的讨论超过了本文的范畴，如果想进一步了解可以参阅官方文档。
 
 ## 总结
 
-To wrap things up in this article we discovered what a service mesh is and how it can be implemented. It also showed how to install Istio on Kubernetes and deploy a sample application. The Bookinfo sample application demonstrated how to manage traffic to different versions based on a user property and weights. Additionally, we learned how to inject faults to uncover potential flaws in the microservice interaction in order to increase system resiliency. Introductions into the collection and visualization of metrics as well as security aspects were also given.
+总结一下，本文中我们描述了什么是服务网格以及如何实现它。同时也展示了如何在 Kubernetes 集群中安装 Istio 并且部署一个简单应用。在[书籍信息应用](https://istio.io/docs/examples/bookinfo/)的例子里展示了如何为不同的用户路由至不同版本的服务，另外，我们也学习了如何进行错误注入来发现微服务中潜在的问题。最后，还给出了收集性能指标和图形化展示它们的方法。
 
 ## 原文链接
 
