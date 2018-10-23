@@ -12,7 +12,7 @@ timezone:
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: http://dog.singles
+url: https://davidc.ai
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
@@ -70,5 +70,5 @@ theme: fexo
 deploy:
   type: rsync
   host: 159.89.154.191
-  user: root
+  user: davidcai
   root: /home/davidcai/apps/blog
