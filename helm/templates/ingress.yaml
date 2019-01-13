@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: my-blog
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "true"
+    kubernetes.io/tls-acme: "true"
+    certmanager.k8s.io/issuer: letsencrypt-production
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  tls:
+  - hosts:
+    - blog.davidc.ai
+    - davidc.ai
+    secretName: my-blog-letsencrypt
+  rules:
+  - host: blog.davidc.ai
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: my-blog
+          servicePort: 4000
+  - host: davidc.ai
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: my-blog
+          servicePort: 4000
