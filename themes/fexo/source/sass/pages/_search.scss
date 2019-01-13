@@ -1,0 +1,136 @@
+.content.content-search {
+  .wrap-search-box {
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: 40px;
+    &:before {
+      position: absolute;
+      top: 50%;
+      left: -2px;
+      width: 8px;
+      height: 8px;
+      margin-top: -4px;
+      margin-left: -4px;
+      content: ' ';
+      border-radius: 50%;
+      background: #ddd;
+    }
+    .search-box {
+      position: relative;
+      background: #f0f0f0;
+      height: $input-search-height;
+      border-radius: $input-search-height;
+      width: 400px;
+      overflow: hidden;
+      .input-search {
+        position: relative;
+        border: none;
+        width: 100%;
+        height: 100%;
+        padding-left: 32px;
+        background: transparent;
+        &:focus {
+          outline: none;
+        }
+      }
+      .icon-search {
+        position: absolute;
+        top: 0;
+        left: 2px;
+        width: $input-search-height - 6px;
+        height: $input-search-height;
+        line-height: $input-search-height;
+        text-align: center;
+        border-radius: $input-search-height;
+        //background: #ddd;
+        color: #bbb;
+      }
+    }
+  }
+  .list-search {
+    .tip {
+      padding-left: 20px;
+      color: #999;
+    }
+    .item {
+      .color-hightlight {
+        color: red;
+      }
+      .title {
+        font-size: 18px;
+        font-weight: bold;
+        transition-duration: 0.5s;
+        color: #333;
+        vertical-align: middle;
+        max-width: 430px;
+        transition-propety: background-color;
+        margin: 30px 0px 0px;
+        &:hover {
+          color: $link-hover-color;
+        }
+      }
+      a {
+        position: relative;
+        display: block;
+        padding-left: 20px;
+        &:before {
+          position: absolute;
+          top: 50%;
+          left: -2px;
+          width: 8px;
+          height: 8px;
+          margin-top: -4px;
+          margin-left: -4px;
+          content: ' ';
+          border-radius: 50%;
+          background: #ddd;
+        }
+      }
+      .post-content {
+        padding-left: 20px;
+        color: #555;
+        > * {
+          font-size: 14px !important;
+        }
+      }
+    }
+  }
+}
+@media screen and (min-width: 768px) {
+  .content.content-search {
+    width: $search-width;
+  }
+}
+@media screen and (max-width: 767px) {
+  .content.content-search {
+    .wrap-search-box {
+      padding-left: 0;
+      margin-bottom: 40px;
+      &:before {
+        display: none;
+      }
+      .search-box {
+        width: 100%;
+      }
+    }
+    .list-search {
+      .tip {
+        padding-left: 0;
+      }
+      .item {
+        .title {
+          font-size: 18px;
+        }
+        a {
+          padding-left: 0;
+          &:before {
+            display: none;
+          }
+        }
+        .post-content {
+          padding-left: 0;
+        }
+      }
+    }
+  }
+}

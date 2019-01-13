@@ -1,0 +1,55 @@
+.toc-article {
+  position: absolute;
+  left: 50%;
+  margin-left: $post-width / 2 + 20px;
+  top: 200px;
+  font-size: 13px;
+
+  &.fixed {
+    position: fixed;
+    top: 20px;
+  }
+
+  ol {
+    line-height: 1.8em;
+    padding-left: 10px;
+    list-style: none;
+  }
+
+  > li {
+    margin: 4px 0;
+  }
+
+  .toc-title {
+    font-size: 16px;
+  }
+
+  .toc {
+    padding-left: 0;
+  }
+
+  a.toc-link.active {
+    color: #111;
+    font-weight: bold;
+  }
+
+  a {
+    color: #888;
+
+    &:hover {
+      color: darken(#888, 10%);
+    }
+  }
+}
+
+@media screen and (max-width: 1023px) {
+  .toc-article {
+    display: none;
+  }
+}
+
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+  .toc-article {
+    display: none;
+  }
+}

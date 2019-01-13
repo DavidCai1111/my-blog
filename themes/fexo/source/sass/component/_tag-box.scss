@@ -1,0 +1,46 @@
+.tag-box {
+  position: relative;
+  margin-bottom: -$tag-title-height/2;
+  margin-left: -$tag-title-height/2;
+  .tag-title {
+    font-size: 13px;
+    line-height: $tag-title-height;
+    position: absolute;
+    top: 50%;
+    width: $tag-title-height;
+    height: $tag-title-height;
+    margin-top: -$tag-title-height/2;
+    text-align: center;
+    color: #555;
+    border-radius: 50%;
+    background: #f0f0f0;
+  }
+  .tag-list {
+    margin-left: 50px;
+    .tag-item {
+      font-size: 12px;
+      line-height: $tag-item-height;
+      display: inline-block;
+      height: $tag-item-height;
+      margin: 5px 3px;
+      padding: 0 12px;
+      color: #999;
+      border-radius: $tag-item-height/2;
+      background: #f6f6f6;
+      &:hover {
+        color: #333;
+        background: #f0f0f0;
+      }
+      .tag-size {
+        font-family: 'calligraffittiregular';
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .tag-box {
+    margin-left: 0;
+  }
+}

@@ -1,0 +1,84 @@
+.article-content {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: normal;
+    margin: 28px 0 15px;
+    color: $title-color;
+  }
+  h1 {
+    font-size: 24px;
+  }
+  h2 {
+    font-size: 20px;
+  }
+  h3 {
+    font-size: 16px;
+  }
+  h4 {
+    font-size: 14px;
+  }
+  a {
+    color: $site-color;
+    &:hover {
+      color: darken($site-color, 10%);
+    }
+  }
+  strong {
+    color: $title-color;
+  }
+  a strong {
+    color: $site-color;
+  }
+  p {
+    font-size: $article-font-size;
+    line-height: 2em;
+    margin-bottom: 20px;
+    color: $article-color;
+  }
+  ol,
+  ul {
+    font-size: $article-font-size;
+    color: $article-color;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  ul {
+    li {
+      position: relative;
+      padding-left: 14px;
+      &:before {
+        position: absolute;
+        top: 12px;
+        left: -2px;
+        width: 4px;
+        height: 4px;
+        margin-left: 2px;
+        content: ' ';
+        border-radius: 50%;
+        background: #bbb;
+      }
+    }
+  }
+  p + ul {
+    margin-top: -10px;
+  }
+  ul + p {
+    margin-top: 25px;
+  }
+  ol {
+    padding-left: 20px;
+  }
+  blockquote {
+    margin: 0;
+    padding: 2px 30px;
+    color: $article-color;
+    border-left: 6px solid #eee;
+    background: #fafafa;
+  }
+}

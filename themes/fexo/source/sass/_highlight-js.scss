@@ -1,0 +1,164 @@
+code {
+  padding: 3px 6px;
+  vertical-align: middle;
+  border-radius: 4px;
+  background-color: #f7f7f7;
+  color: #e96900;
+}
+/** Highlight.js Styles (Syntax Highlighting) */
+figure.highlight {
+  display: block;
+  overflow-x: auto;
+  margin: 0 0 15px;
+  padding: 16px;
+  color: $code-color;
+  font-size: $code-font-size;
+  border-radius: 6px;
+  background-color: #f7f7f7;
+  overflow-y: hidden
+}
+.highlight pre {
+  line-height: 1.5em;
+  overflow-y: hidden;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.highlight .gutter pre {
+  padding-right: 30px;
+  text-align: right;
+  border: 0;
+  background-color: transparent;
+}
+.highlight .code {
+  width: 100%;
+}
+.highlight figcaption {
+  font-size: .8em;
+  color: #999;
+}
+.highlight figcaption a {
+  float: right;
+}
+.highlight table {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  td,
+  th {
+    border: 0;
+    color: $code-color;
+    font-size: $code-font-size;
+    padding: 0;
+  }
+}
+.highlight pre {
+  margin: 0;
+  background-color: transparent;
+}
+.highlight .comment,
+.highlight .meta {
+  color: #b3b3b3;
+}
+.highlight .string,
+.highlight .value,
+.highlight .variable,
+.highlight .template-variable,
+.highlight .strong,
+.highlight .emphasis,
+.highlight .quote,
+.highlight .inheritance,
+.highlight.ruby .symbol,
+.highlight.xml .cdata {
+  color: $site-color;
+}
+.highlight .keyword,
+.highlight .selector-tag,
+.highlight .type,
+.highlight.javascript .function {
+  color: #e96900;
+}
+.highlight .preprocessor,
+.highlight .built_in,
+.highlight .params,
+.highlight .constant,
+.highlight .symbol,
+.highlight .bullet,
+.highlight .attribute,
+.highlight.css .hexcolor {
+  color: $site-color;
+}
+
+.highlight .number,
+.highlight .literal {
+  color: #ae81ff;
+}
+
+.highlight .section,
+.highlight .header,
+.highlight .name,
+.highlight .function,
+.highlight.python .decorator,
+.highlight.python .title,
+.highlight.ruby .function .title,
+.highlight.ruby .title .keyword,
+.highlight.perl .sub,
+.highlight.javascript .title,
+.highlight.coffeescript .title {
+  color: #525252;
+}
+.highlight .tag,
+.highlight .regexp {
+  color: #2973b7;
+}
+.highlight .title,
+.highlight .attr,
+.highlight .selector-id,
+.highlight .selector-class,
+.highlight .selector-attr,
+.highlight .selector-pseudo,
+.highlight.ruby .constant,
+.highlight.xml .tag .title,
+.highlight.xml .pi,
+.highlight.xml .doctype,
+.highlight.html .doctype,
+.highlight.css .id,
+.highlight.css .pseudo,
+.highlight .class,
+.highlight.ruby .class .title {
+  color: #2973b7;
+}
+
+.highlight.css .code .attribute {
+  color: #e96900;
+}
+
+.highlight.css .class {
+  color: #525252;
+}
+
+.tag .attribute {
+  color: #e96900;
+}
+.highlight .addition {
+  color: #55a532;
+  background-color: #eaffea;
+}
+.highlight .deletion {
+  color: #bd2c00;
+  background-color: #ffecec;
+}
+.highlight .link {
+  text-decoration: underline;
+}
+.function  {
+  .keyword {
+
+  color: #0092db;
+  }
+  .params {
+    color: #525252;
+  }
+  .title {
+    color: #525252;
+  }
+}

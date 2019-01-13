@@ -1,0 +1,43 @@
+<div class="content content-project">
+  <%- partial('_partial/component/page-header', {location: __('location.projects')}) %>
+
+  <ul class="project-list">
+    <% theme.project.forEach(function(item, i){ %>
+      <li class="project-item">
+
+        <i class="dot dot-<%= i % 5%> "></i>
+
+        <div class="text">
+          <a class="project-url" href="<%= item.url || ''%>" rel="noopener noreferrer" target="_blank"><%= item.name || ''%></a>
+          <span class="intro">- <%= item.intro || ''%></span>
+        </div>
+
+      </li>
+
+      <% if (item.image || item.youtube || item.youku && item.detail) { %>
+        <div class="img-article-wrapper">
+          <div class="project-media">
+          <% if (item.youtube) { %>
+            <iframe src="https://www.youtube.com/embed/<%= item.youtube%>?rel=0&amp;showinfo=0" frameborder="0" gesture="media" allow="encrypted-media" allowfullscreen></iframe>
+          <% } else if (item.youku) { %>
+            <iframe src='http://player.youku.com/embed/<%= item.youku%>' frameborder=0 'allowfullscreen'></iframe>
+          <% } else { %>
+            <img class="project-img" src="<%= item.image%>" alt="<%= item.image_alt%>"/>
+          <% } %>
+          </div>
+          <div class="project-detail">
+            <%- item.detail %>
+          </div>
+        </div>
+      <% } %>
+
+      <% if (item.extra) { %>
+        <%- item.extra %>
+      <% } %>
+
+    <% }) %>
+  </ul>
+
+</div>
+
+<%- partial('_partial/component/back-top', {showBacktop: theme.backtop.project}) %>

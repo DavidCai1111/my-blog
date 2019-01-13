@@ -1,0 +1,26 @@
+<div class="page-header">
+
+  <% if(theme.breadcrumb && theme.breadcrumb.isShow == true) { %>
+    <div class="breadcrumb">
+      <div class="location"><%= location %></div>
+      <i class="icon-location"></i>
+    </div>
+  <% } %>
+
+  <%- partial('toolbox') %>
+
+  <div class="box-blog-info">
+    <a class="avatar" href="/">
+      <img src="<%= theme.avatar %>" alt="" />
+    </a>
+    <div class="info">
+      <h3 class="name" style="font-family: <%= theme.blog_name_font_familiy || 'calligraffittiregular' %>">
+        <%= theme.blog_name %>
+      </h3>
+      <div class="slogan">
+        <%= theme.slogan %>
+      </div>
+    </div>
+  </div>
+
+</div>

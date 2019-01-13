@@ -1,0 +1,85 @@
+.content.content-link {
+  .link-list {
+    .link-item {
+      position: relative;
+      margin-left: -23px;
+      padding: 8px 0;
+      a {
+        display: block;
+        color: #444;
+        .avatar,
+        .wrap-info {
+          display: inline-block;
+          vertical-align: middle;
+        }
+        .avatar {
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          &:hover {
+            opacity: .8;
+          }
+        }
+        .wrap-info {
+          //word-wrap: break-word;
+          //word-break: normal;
+          line-height: 1.3em;
+          .name {
+            font-weight: bold;
+            &:hover {
+              color: $site-color;
+            }
+          }
+          .info {
+            font-size: 13px;
+            color: #999;
+            min-width: 240px;
+          }
+        }
+      }
+    }
+  }
+  .tip {
+    margin: 20px 0 0 -15px;
+    color: #ddd;
+    i, span {
+      vertical-align: middle;
+    }
+    .icon-mail {
+      width: 24px;
+      height: 24px;
+      text-align: center;
+      line-height: 24px;
+      border-radius: 50%;
+      color: #fff;
+      background: #f0f0f0;
+      font-size: 12px;
+      display: inline-block;
+      padding-left: 1px;
+    }
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .content.content-link {
+    width: $link-width;
+    hr {
+      display: none;
+      height: 0;
+    }
+  }
+}
+
+
+@media screen and (max-width: 767px) {
+  .content.content-link {
+    width: 100%;
+    .link-list {
+      .link-item {
+        position: relative;
+        margin-left: 0;
+        padding: 8px 0 8px 10px;
+      }
+    }
+  }
+}

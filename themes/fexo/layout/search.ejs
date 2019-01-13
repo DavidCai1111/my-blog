@@ -1,0 +1,18 @@
+<div class="content content-search">
+  <%- partial('_partial/component/page-header', {location: __('location.search')}) %>
+  <div class="wrap-search-box">
+    <div class="search-box">
+      <input id="input-search"  class="input-search" type="text" placeholder="search">
+      <i class="icon-search"></i>
+    </div>
+  </div>
+
+  <ul id="list-search" class="list-search">
+    <% if(theme.search_slogan.isShow) { %>
+      <li class="tip"><%= theme.search_slogan.text%></li>
+    <% } %>
+  </ul>
+
+</div>
+
+<%- partial('_partial/component/back-top', {showBacktop: theme.backtop.about}) %>

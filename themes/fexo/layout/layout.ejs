@@ -1,0 +1,22 @@
+<%- partial('_partial/head') %>
+<body>
+
+
+  <% if(theme.toolbox && theme.toolbox.isShow == true && page.base !== '') { %>
+    <span id="toolbox-mobile" class="toolbox-mobile"><%=  theme.toolbox.text %></span>
+  <% } %>
+
+  <%- body %>
+
+  <%- partial('_partial/component/modal') %>
+
+
+  <% if (theme.post.showComments && page.layout === 'post'){ %>
+    <%- partial('_partial/component/comments', {className: 'comments-post'}) %>
+  <% } else if (page.comments) { %>
+    <%- partial('_partial/component/comments', {className: 'comments-' + page.layout}) %>
+  <% } %>
+
+  <%- partial('_partial/load-script') %>
+</body>
+</html>

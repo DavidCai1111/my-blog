@@ -1,0 +1,135 @@
+html.bg {
+  background-color: transparent;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+.content-home {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  height: 100%;
+  height: 300px;
+  margin-top: -150px;
+  margin-bottom: 100px;
+  .avatar {
+    img {
+      display: inline-block;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      overflow: hidden;
+    }
+  }
+  .name {
+    font-size: 26px;
+    font-weight: bold;
+    font-style: normal;
+    line-height: 50px;
+    height: 50px;
+    margin: 0 auto;
+    letter-spacing: -.03em;
+  }
+  .slogan {
+    font-size: 16px;
+    font-weight: 200;
+    margin-bottom: 26px;
+    color: #666;
+  }
+  .nav {
+    color: #bbb;
+    .item {
+      display: inline-block;
+      a {
+        font-size: 14px;
+        display: inline-block;
+        text-align: center;
+        text-decoration: none;
+        color: #000;
+        transition-duration: 0.5s;
+        transition-propety: background-color;
+        &:hover {
+          color: $link-hover-color;
+        }
+      }
+      &:last-child {
+        span {
+          display: none;
+        }
+      }
+      //&:nth-child(5n+1) a {
+      //  color: #1ABC9C;
+      //  &:hover {
+      //    color: darken(#1ABC9C, 8%);
+      //  }
+      //}
+      //&:nth-child(5n+2) a {
+      //  color: #3498DB;
+      //  &:hover {
+      //    color: darken(#3498DB, 8%);
+      //  }
+      //}
+      //&:nth-child(5n+3) a {
+      //  color:#E67E22;
+      //  &:hover {
+      //    color: darken(#E67E22, 8%);
+      //  }
+      //}
+      //&:nth-child(5n+4) a {
+      //  color: #E74C3C;
+      //  &:hover {
+      //    color: darken(#E74C3C, 8%);
+      //  }
+      //}
+      //&:nth-child(5n+5) a {
+      //  color: #9B59B6;
+      //  &:hover {
+      //    color: darken(#9B59B6, 8%);
+      //  }
+      //}
+    }
+  }
+  @media (max-width: 640px) {
+    .title {
+      font-size: 3rem;
+      font-weight: 100;
+      letter-spacing: -.05em;
+    }
+  }
+}
+hr {
+  max-width: 400px;
+  height: 1px;
+  margin-top: -1px;
+  border: none;
+  background-image: linear-gradient(0deg, transparent, #d5d5d5, transparent);
+  background-image: -webkit-linear-gradient(0deg, transparent, #d5d5d5, transparent);
+}
+
+html.dark {
+  hr {
+    //display: none;
+    display: block;
+  }
+  .content-home {
+    .name {
+      color: #fff;
+    }
+    .slogan {
+      color: #fff;
+    }
+    .nav {
+      color: #fff;
+      .item {
+        a {
+          color: #fff;
+          &:hover {
+            color: $link-hover-color;
+          }
+        }
+      }
+    }
+  }
+}
+html.light {}

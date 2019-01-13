@@ -1,0 +1,144 @@
+.toolbox {
+  position: relative;
+  width: 60px;
+  height: 40px;
+  border-radius: 20px;
+  background: transparent;
+  &:hover {
+    width: 200px;
+    .toolbox-entry {
+      .icon-angle-down {
+        display: none;
+      }
+      .toolbox-entry-text {
+        display: inline-block;
+      }
+    }
+    .list-toolbox {
+      display: block;
+      li {
+        a {
+          animation-duration: .8s;
+
+          animation-fill-mode: both;
+        }
+      }
+      li:nth-child(1) a {
+        // animation-name: zoomIn;
+        animation-name: fadeIn;
+      }
+      li:nth-child(2) a {
+        // animation-name: zoomIn;
+        animation-name: fadeIn;
+        animation-delay: .1s;
+      }
+      li:nth-child(3) a {
+        // animation-name: zoomIn;
+        animation-name: fadeIn;
+        animation-delay: .2s;
+      }
+      li:nth-child(4) a {
+        // animation-name: zoomIn;
+        animation-name: fadeIn;
+        animation-delay: .3s;
+      }
+      li:nth-child(5) a {
+        // animation-name: zoomIn;
+        animation-name: fadeIn;
+        animation-delay: .4s;
+      }
+      li:nth-child(6) a {
+        // animation-name: zoomIn;
+        animation-name: fadeIn;
+        animation-delay: .5s;
+      }
+      li:nth-child(7) a {
+        // animation-name: zoomIn;
+        animation-name: fadeIn;
+        animation-delay: .6s;
+      }
+      li:nth-child(8) a {
+        // animation-name: zoomIn;
+        animation-name: fadeIn;
+        animation-delay: .7s;
+      }
+    }
+  }
+  .toolbox-entry {
+    position: relative;
+    font-size: 13px;
+    line-height: 40px;
+    display: block;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 20px;
+    transition-duration: .5s;
+    text-align: center;
+    color: #555;
+    border-radius: 50%;
+    background: #f0f0f0;
+
+    transition-propety: background-color;
+    .icon-angle-down  {
+      display: none;
+    }
+    .toolbox-entry-text {
+      display: inline-block;
+    }
+    .icon-home {
+      display: none;
+      font-size: 22px;
+      color: #999;
+    }
+    &:hover {
+      cursor: pointer;
+      background: #dfdfdf;
+      .icon-angle-down,
+      .toolbox-entry-text {
+        display: none;
+      }
+      .icon-home {
+        display: inline-block;
+      }
+    }
+  }
+  .list-toolbox {
+    position: absolute;
+    top: -17px;
+    left: 46px;
+    display: none;
+    width: 500px;
+    .item-toolbox {
+      display: inline-block;
+      a {
+        font-size: 13px;
+        line-height: 40px;
+        display: inline-block;
+        height: 40px;
+        margin-bottom: 20px;
+        transition-duration: .5s;
+        text-align: center;
+        color: #555;
+        border-radius: 20px;
+        background: #f0f0f0;
+
+        transition-propety: background-color;
+        &.CIRCLE {
+          width: 40px;
+        }
+        &.ROUND_RECT {
+          padding: 0 20px;
+        }
+        &:hover {
+          background: #dfdfdf;
+        }
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .toolbox {
+    display: none;
+  }
+}

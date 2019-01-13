@@ -1,0 +1,33 @@
+<div class="content content-category">
+  <%- partial('_partial/component/page-header', {location: __('location.categories')}) %>
+  <%- partial('_partial/component/category-box') %>
+  <%- getPostListsDom(site.categories.sort('name')) %>
+</div>
+
+<%- partial('_partial/component/back-top', {showBacktop: theme.backtop.category}) %>
+
+<%
+  function getPostListsDom(categories) {
+    var postList = [];
+
+    categories.each(function (category, i) {
+      var categoryInfo = {id: i % 5, isCategoryName: true, categoryName: category.name, count: category.posts.length};
+      postList.push(categoryInfo);
+
+      category.posts.sort('date', -1).forEach(function(post) {
+        postList.push(post);
+      });
+    });
+
+    var dom = '<ul class="list-post">';
+
+    postList.forEach(function (post, i) {
+      var patialPath = post.isCategoryName ? '_partial/component/item-category-name' : '_partial/component/item-post';
+      dom += partial(patialPath, {post: post});
+    });
+
+    dom += '</ul>';
+    return dom;
+  }
+
+%>

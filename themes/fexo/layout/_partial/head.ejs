@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<% if (theme.home_background_scheme === 'light') {%>
+  <html class="light page-<%= page.base ? page.base.replace(/\//g, '') : page.layout ? page.layout : 'home' %>">
+<% } else { %>
+  <html class="dark page-<%= page.base ? page.base.replace(/\//g, '') : page.layout ? page.layout : 'home' %>">
+<% } %>
+
+<head>
+  <meta charset="utf-8">
+  <%
+  var title = page.title;
+
+  if (is_archive()){
+    title = 'Archives';
+
+    if (is_month()){
+      title += ': ' + page.year + '/' + page.month;
+    } else if (is_year()){
+      title += ': ' + page.year;
+    }
+  } else if (is_category()){
+    title = 'Category: ' + page.category;
+  } else if (is_tag()){
+    title = 'Tag: ' + page.tag;
+  }
+  %>
+  <title><% if (title){ %><%= title %> | <% } %><%= config.title %></title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <% if (page.tags && page.tags.length) { %>
+    <meta name="keywords" content="<% page.tags.forEach(function(tag) { %><%= tag.name %>,<% }); %>" />
+  <% } else { %>
+    <meta name="keywords" content="<%= theme.keywords %>" />
+  <% } %>
+
+  <%- open_graph() %>
+
+  <% if (theme.rss){ %>
+    <link rel="alternate" href="<%- theme.rss %>" title="<%= config.title %>" type="application/atom+xml">
+  <% } %>
+
+  <% if (theme.favicon){ %>
+    <link rel="icon" href="<%- theme.favicon %>">
+  <% } %>
+
+  <%- partial('style') %>
+
+  <% if (theme.personal_style){ %>
+    <%- css(theme.personal_style) %>
+  <% } %>
+
+  <%- partial('google-analytics') %>
+  <%- partial('baidu-analytics') %>
+  <%- partial('baidu-push') %>
+
+  <% if (theme.busuanzi){ %>
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  <% } %>
+
+</head>

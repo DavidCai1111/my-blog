@@ -1,0 +1,20 @@
+<% if (theme.donation.show) { %>
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation"><%= theme.donation.btn_text %></span>
+      <div class="donation-body">
+        <div class="tip text-center"><%= theme.donation.tip %></div>
+        <ul>
+        <% theme.donation.items.forEach(function(item, i){ %>
+          <li class="item">
+            <% if(item.text!=undefined){ %>
+              <span><%= item.text %></span>
+            <% } %>
+            <img src="<%= item.imgUrl %>" alt="">
+          </li>
+        <% }) %>
+        </ul>
+      </div>
+    </div>
+  </div>
+<% } %>
