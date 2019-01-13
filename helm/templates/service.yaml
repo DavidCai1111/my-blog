@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: my-blog
+spec:
+  selector:
+    app: my-blog
+  ports:
+  - protocol: HTTP
+    targetPort: 4000
+    name: my-blog-port
+  type: clusterIP

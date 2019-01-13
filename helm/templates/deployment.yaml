@@ -1,0 +1,20 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: my-blog
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: my-blog
+    spec:
+      containers:
+      - name: my-blog
+        image: davidcai1993/blog:{{ .Values.blog.version }}
+        ports:
+        - containerPort: 4000
+        resources:
+          limits:
+            cpu: 100m
+            memory: 256Mi

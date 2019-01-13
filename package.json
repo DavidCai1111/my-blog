@@ -1,9 +1,13 @@
 {
-  "name": "hexo-site",
-  "version": "0.0.0",
+  "name": "blog",
+  "version": "1.0.0",
   "private": true,
   "hexo": {
     "version": "3.3.8"
+  },
+  "scripts": {
+    "build": "docker build . -t blog:1.0.1",
+    "publish": "npm run build && docker tag blog:1.0.1 davidcai1993/blog:1.0.1 && docker push davidcai1993/blog:1.0.1"
   },
   "dependencies": {
     "hexo": "^3.2.0",
