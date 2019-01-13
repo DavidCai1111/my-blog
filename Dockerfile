@@ -1,4 +1,4 @@
-FROM node:latest
+FROM node:8-alpine
 
 ENV WORKDIR=/app
 WORKDIR ${WORKDIR}
@@ -9,10 +9,10 @@ ENV ELECTRON_MIRROR="https://npm.taobao.org/mirrors/electron/"
 
 COPY package.json .
 
-RUN npm i --registry=http://registry.npm.shimo.run
+RUN npm i && npm i -g hexo
 
 COPY . .
 
 EXPOSE 4000
 
-CMD ["hexo", "server"]
+CMD ["./node_modules/.bin/hexo", "server"]
