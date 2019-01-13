@@ -6,7 +6,7 @@ spec:
   selector:
     app: my-blog
   ports:
-  - protocol: HTTP
-    targetPort: 4000
+  - protocol: TCP
+    port: 4000
     name: my-blog-port
-  type: clusterIP
+  type: ClusterIP
