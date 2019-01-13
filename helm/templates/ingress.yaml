@@ -10,17 +10,9 @@ metadata:
 spec:
   tls:
   - hosts:
-    - blog.davidc.ai
     - davidc.ai
     secretName: my-blog-letsencrypt
   rules:
-  - host: blog.davidc.ai
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: my-blog
-          servicePort: 4000
   - host: davidc.ai
     http:
       paths:
