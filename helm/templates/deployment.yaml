@@ -12,6 +12,8 @@ spec:
       containers:
       - name: my-blog
         image: davidcai1993/blog:{{ .Values.blog.version }}
+        imagePullSecrets:
+          - name: regcred
         ports:
         - containerPort: 4000
         resources:
