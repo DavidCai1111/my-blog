@@ -18,131 +18,137 @@ tags:
 
 ## 基于功能的数据划分（Functional Partitioning）
 
-Functional partitioning is important for achieving high degrees of scalability. Any good database architecture will decompose the schema into tables grouped by functionality. Users, products, transactions, and communication are examples of functional areas. Leveraging database concepts such as foreign keys is a common approach for maintaining consistency across these functional areas.
+基于功能的数据划分对于数据的可扩展性至关重要。市面上优秀的数据库架构都选择以功能为单位把数据拆分到多个表中。Users 表，Products 表，和 Trans 表分别为系统提供了不同的功能。为了保证这些表之间的数据一致性，一些数据库提供的功能（如外键）常常被使用到。
 
-Relying on database constraints to ensure consistency across functional groups creates a coupling of the schema to a database deployment strategy. For constraints to be applied, the tables must reside on a single database server, precluding horizontal scaling as transaction rates grow. In many cases, the easiest scale-out opportunity is moving functional groups of data onto discrete database servers.
+由于要依赖数据库来维持不同表之间的数据一致性，所以当我们的数据量增加时，横向拓展往往会变得困难。在大多数情况下，最简单的扩展方式就是将不同的表移到各个独立的数据库中。
 
-Schemas that can scale to very high transaction volumes will place functionally distinct data on different database servers. This requires moving data constraints out of the database and into the application. This also introduces several challenges that are addressed later in this article.
+当把不同的表移到各个独立的数据库中之后，确保各表间数据一致性的挑战就从数据库层转向了应用层。这会导致许多问题和挑战，都会在后文有所描述。
 
-CAP Theorem
-Eric Brewer, a professor at the University of California, Berkeley, and cofounder and chief scientist at Inktomi, made the conjecture that Web services cannot ensure all three of the following properties at once (signified by the acronym CAP):2
+## CAP 理论
 
-Consistency. The client perceives that a set of operations has occurred all at once.
+Eric Brewer，伯克利加州大学教授，同时也是 Inktomi 的联合创始人及首席科学家，预测一个 Web 服务不可能同时拥有以下三种属性（CAP 理论的名称由来即截取了这三种属性的首字母）：
 
-Availability. Every operation must terminate in an intended response.
+- 一致性（Consistency）：客户端可以察觉到有关业务逻辑的一系列操作都在同一时刻完成。
+- 可用性（Availability）：所有操作都必须在理想的时间内全部成功完成。
+- 分区容错性（Partition tolerance）：系统可以在一个时限内实现数据一致性，即使系统中的有些组件暂时不可用。
 
-Partition tolerance. Operations will complete, even if individual components are unavailable.
+一个 Web 应用不管使用任何一种数据库的设计模式，最多也只能同时满足以上两种属性。显然，任何的数据横向扩展策略，都基于切分数据，所以我们被迫只能再一致性和可用性中挑选其一。
 
-Specifically, a Web application can support, at most, only two of these properties with any database design. Obviously, any horizontal scaling strategy is based on data partitioning; therefore, designers are forced to decide between consistency and availability.
+## ACID 解决方案
 
-ACID Solutions
-ACID database transactions greatly simplify the job of the application developer. As signified by the acronym, ACID transactions provide the following guarantees:
+ACID 数据库事务极大地简化了应用开发者在这方面的任务，ACID 事务提供了以下保证：
 
-Atomicity. All of the operations in the transaction will complete, or none will.
+- 原子性（Atomicity）：所有的操作要么全部完成，要么一个都不执行。
+- 一致性（Consistency）：在事务开始和完成时，数据库都保持给定业务逻辑上的数据一致性。
+- 隔离性（Isolation）：多个事务之间相互隔离，数据上不会相互影响。
+- 持久性（Durability）：事务完成后，数据的修改就是持久的。
 
-Consistency. The database will be in a consistent state when the transaction begins and ends.
+数据库的提供商很久之前就意识到了数据分区的需求，并且发明了一种名为 2PC （二阶段提交，two-phase commit）的方案来为多个数据库实例之间提供 ACID 保证。2PC 协议分为以下两个阶段：
 
-Isolation. The transaction will behave as if it is the only operation being performed upon the database.
+- 首先，事务的协调器要求每一个数据库先执行一次预提交，来表明这次数据修改的提交是可行的。如果所有的数据库都成功地执行了预提交，那么便开始第二个阶段。
+- 事务的协调器要求所有的数据库完成这次数据真正的提交。
 
-Durability. Upon completion of the transaction, the operation will not be reversed.
+当任意一个数据库提交失败，那么其余所有的数据库都会被要求执行回滚。至此，我们已经实现了多数据库之间的数据一致性。如果 Brewer 是正确的，那么我们必然会牺牲应用的可用性，所以这种情况下可用性会有怎样的影响呢？
 
-Database vendors long ago recognized the need for partitioning databases and introduced a technique known as 2PC (two-phase commit) for providing ACID guarantees across multiple database instances. The protocol is broken into two phases:
+任何系统的可用性，可以由其所有执行操作的组件的可用性的乘积来得出。一个包含了两个数据库的二阶段提交，它的可用性就是这两个数据库的可用性的乘积。所以，只要这两个数据库的可用性不是 100% （必然不可能），那么可用性必然会下降，比如，如果两个数据库的可用性分别都是 99% ，那么整个事务的可用性就是 98% ，即每个月会多出 43 分钟的不可用时间。
 
-First, the transaction coordinator asks each database involved to precommit the operation and indicate whether commit is possible. If all databases agree the commit can proceed, then phase 2 begins.
-The transaction coordinator asks each database to commit the data.
-If any database vetoes the commit, then all databases are asked to roll back their portions of the transaction. What is the shortcoming? We are getting consistency across partitions. If Brewer is correct, then we must be impacting availability, but how can that be?
+## ACID 的一个替代者
 
-The availability of any system is the product of the availability of the components required for operation. The last part of that statement is the most important. Components that may be used by the system but are not required do not reduce system availability. A transaction involving two databases in a 2PC commit will have the availability of the product of the availability of each database. For example, if we assume each database has 99.9 percent availability, then the availability of the transaction becomes 99.8 percent, or an additional downtime of 43 minutes per month.
+如果 ACID 保证了 CAP 中的一致性和分区容错性，那么我们的替代方案：BASE （基本可用，软状态，最终一致，basically available, soft state, eventually consistent），则保证了分区容错性和可用性。
 
-An ACID Alternative
-If ACID provides the consistency choice for partitioned databases, then how do you achieve availability instead? One answer is BASE (basically available, soft state, eventually consistent).
+ACID 在每个事务结束时，都强制地保证了数据的一致性，而 BASE 则不然，它接受数据库的状态是流式的，并且在一个时间点上会最终保持一致性。尽管这听上去很难操作，但是在现实中实现起来却很容易，并且它可以带来 ACID 很难实现的数量级上的可扩展性优势。
 
-BASE is diametrically opposed to ACID. Where ACID is pessimistic and forces consistency at the end of every operation, BASE is optimistic and accepts that the database consistency will be in a state of flux. Although this sounds impossible to cope with, in reality it is quite manageable and leads to levels of scalability that cannot be obtained with ACID.
+BASE 的可用性提升是通过把整个系统的错误转移至个别系统的错误来实现的。打个比方：如果用户被分布到了 5 个不同的数据库服务器中，在 BASE 的设计模式下，一个服务的错误只会影响 20% 的用户。没有什么特别神奇的地方，但是这样的确达到了更高的系统可用性。
 
-The availability of BASE is achieved through supporting partial failures without total system failure. Here is a simple example: if users are partitioned across five database servers, BASE design encourages crafting operations in such a way that a user database failure impacts only the 20 percent of the users on that particular host. There is no magic involved, but this does lead to higher perceived availability of the system.
+所以，现在你已经把你的数据按功能区分到了多个分区中，并且把用量最大的数据分到了多个数据库中。然后，你该如何在你的应用中实施 BASE 呢？BASE 相对于 ACID ，要求你对每个事务逻辑有更深入的分析，该如何分析？下面几个章节会提供一些思路。
 
-So, now that you have decomposed your data into functional groups and partitioned the busiest groups across multiple databases, how do you incorporate BASE into your application? BASE requires a more in-depth analysis of the operations within a logical transaction than is typically applied to ACID. What should you be looking for? The following sections provide some direction.
+## 一致性模式（Consistency Patterns）
 
-Consistency Patterns
-Following Brewer's conjecture, if BASE allows for availability in a partitioned database, then opportunities to relax consistency have to be identified. This is often difficult because the tendency of both business stakeholders and developers is to assert that consistency is paramount to the success of the application. Temporal inconsistency cannot be hidden from the end user, so both engineering and product owners must be involved in picking the opportunities for relaxing consistency.
+根据 Brewer 所言，如果 BASE 在分区的数据系统中保证了可用性，那么整个系统的数据一致性则必然会有所妥协。这经常很难妥协，因为公司的所有者和开发者通常都认为数据的一致性是一个应用要取得成功所必须的。系统中暂时出现的数据不一致不可能不让用户察觉到，所以当要挑选系统中的哪些部分可以容忍数据的暂时不一致时，产品的负责人和工程师必须同时参与。
 
-Figure 2 is a simple schema that illustrates consistency considerations for BASE. The user table holds user information including the total amount sold and bought. These are running totals. The transaction table holds each transaction, relating the seller and buyer and the amount of the transaction. These are gross oversimplifications of real tables but contain the necessary elements for illustrating several aspects of consistency.
+![图片 2](http://deliveryimages.acm.org/10.1145/1400000/1394128/fig2.jpg)
 
+我们来用上图简单地阐述一下 BASE 在数据一致性上考虑。用户表保存了用户的信息，包含了该用户所有的消费金额和收入金额，它们都是总量。交易表则记录包含卖家和买家信息的每一笔交易。这两张表里的字段相对于真实场景做了非常多的简化，不过对于阐述我们的观点来说，已经足够了。
 
+在一次交易后，交易表中会添加一行交易数据，而买家和卖家的用户表里的各自买卖金额数据也会被更新。如果我们使用 ACID 事务，那么 SQL 语句会如下图：
 
-In general, consistency across functional groups is easier to relax than within functional groups. The example schema has two functional groups: users and transactions. Each time an item is sold, a row is added to the transaction table and the counters for the buyer and seller are updated. Using an ACID-style transaction, the SQL would be as shown in figure 3.
+![图片 3](http://deliveryimages.acm.org/10.1145/1400000/1394128/fig3.jpg)
 
+用户表中的买卖金额总量可以视为交易表的一个数据缓存。这两个字段的存在是为了让整个系统更有效率。因此，这两个表之间的数据一致性往往是可以妥协的。买家和卖家不会立刻实时看到自己的准确交易额数据在很多场景下是可以接受的。
 
+下图展示了如何修改 SQL 语句来使这部分一致性有所妥协：
 
-The total bought and sold columns in the user table can be considered a cache of the transaction table. It is present for efficiency of the system. Given this, the constraint on consistency could be relaxed. The buyer and seller expectations can be set so their running balances do not reflect the result of a transaction immediately. This is not uncommon, and in fact people encounter this delay between a transaction and their running balance regularly (e.g., ATM withdrawals and cellphone calls).
+![图片 4](http://deliveryimages.acm.org/10.1145/1400000/1394128/fig4.jpg)
 
-How the SQL statements are modified to relax consistency depends upon how the running balances are defined. If they are simply estimates, meaning that some transactions can be missed, the changes are quite simple, as shown in figure 4.
+现在，我们已经把用户表和交易表的更新分离了。这两个表之间的一致性并不能被保证。事实上，任意一个表的更新失败都会导致系统中数据的永久不持久，但是如果我们告知用户这些数字只是估算值，那么这个不一致或许就是可以接受的。
 
+如果估算值是不可接受的，那么该怎么办呢？你怎么才能把用户表和交易表的更新分离呢？你需要使用一个支持数据持久化的消息。
+关于如何实现持久化消息，最重要的一点，就是要确保要持久化的消息数据要和数据库中待更新的资源保持一致。现在 SQL 变为了下图所示：
 
+![图片 5](http://deliveryimages.acm.org/10.1145/1400000/1394128/fig5.jpg)
 
-We've now decoupled the updates to the user and transaction tables. Consistency between the tables is not guaranteed. In fact, a failure between the first and second transaction will result in the user table being permanently inconsistent, but if the contract stipulates that the running totals are estimates, this may be adequate.
+上图的例子对语法和逻辑进行了一些简化。当把当前事务的必须更新作为消息发出持久化消息后，被通知到的服务必须更新指定用户的交易额数据。这些更新都是在单个收到消息的服务的数据库上的，所以不会影响整个系统的可用性。
 
-What if estimates are not acceptable, though? How can you still decouple the user and transaction updates? Introducing a persistent message queue solves the problem. There are several choices for implementing persistent messages. The most critical factor in implementing the queue, however, is ensuring that the backing persistence is on the same resource as the database. This is necessary to allow the queue to be transactionally committed without involving a 2PC. Now the SQL operations look a bit different, as shown in figure 5.
+独立的消息处理组件会接收队列的消息，并且更新用户表里的对应信息。这看上去已经解决了所有问题，其实不然。为了避免 2PC ，消息的持久化是在事务的宿主上进行的。如果消息是在独立的消息处理端内获取的，那么我们还是需要 2PC 和回退。
 
+一个对于消息处理端的 2PC 的解决方案是什么都不做。如果消息处理端的最低可用性是业务场景所接受的，那么什么都不做也可以接受。
 
+但是这样的 2PC 在大多数场景下都是不可接受的，那么问题该如何解决呢？首先，你需要理解一个概念：「幂等」。一个操作如果被执行一次或多次，都会有同样的结果，那么这个操作就是幂等的。所以幂等操作可以通过重试来容许失败，不断的重试并不会改变系统的最终状态。
 
-This example takes some liberties with syntax and oversimplifying the logic to illustrate the concept. By queuing a persistent message within the same transaction as the insert, the information needed to update the running balances on the user has been captured. The transaction is contained on a single database instance and therefore will not impact system availability.
+在我们的例子中，要实现幂等很难，因为单纯的更新操作很难做到幂等。我们的例子中直接增加了表中的金额字段，显然执行多次就会导致金额字段的不正确。及时更新是简单的为某字段设置一个新值，由于「操作是有循序的」，也很难做到幂等。如果一个系统不能保证按照接受的顺序更新对应字段，那么这个系统的最终状态就是不正确的。
 
-A separate message-processing component will dequeue each message and apply the information to the user table. The example appears to solve all of the issues, but there is a problem. The message persistence is on the transaction host to avoid a 2PC during queuing. If the message is dequeued inside a transaction involving the user host, we still have a 2PC situation.
+在我们场景里，我们还需要一个能够追踪用户的某次交易额更新是否已经成功的地方。一个方案便是使用另一张表来记录交易 ID 以及对应用户表的更新情况。
 
-One solution to the 2PC in the message-processing component is to do nothing. By decoupling the update into a separate back-end component, you preserve the availability of your customer-facing component. The lower availability of the message processor may be acceptable for business requirements.
+下图展示的表记录了交易 ID （trans_id），需要更新的用户 ID，以及需要更新的额度。
 
-Suppose, however, that 2PC is simply never acceptable in your system. How can this problem be solved? First, you need to understand the concept of idempotence. An operation is considered idempotent if it can be applied one time or multiple times with the same result. Idempotent operations are useful in that they permit partial failures, as applying them repeatedly does not change the final state of the system.
+![图片 6](http://deliveryimages.acm.org/10.1145/1400000/1394128/fig6.jpg)
 
-The selected example is problematic when looking for idempotence. Update operations are rarely idempotent. The example increments balance columns in place. Applying this operation more than once obviously will result in an incorrect balance. Even update operations that simply set a value, however, are not idempotent with regard to order of operations. If the system cannot guarantee that updates will be applied in the order they are received, the final state of the system will be incorrect. More on this later.
+下图是我们事务的最新伪代码：
 
-In the case of balance updates, you need a way to track which updates have been applied successfully and which are still outstanding. One technique is to use a table that records the transaction identifiers that have been applied.
+![图片 7](http://deliveryimages.acm.org/10.1145/1400000/1394128/fig7.jpg)
 
-The table shown in figure 6 tracks the transaction ID, which balance has been updated, and the user ID where the balance was applied. Now our sample pseudocode is as shown in figure 7.
+上图的例子依赖于获取队列中的一条消息并且在处理成功后移除该消息。如果必要的话，这可以通过两个事务来完成：一个在消息队列中，一个在用户数据库中。队列里的消息在数据库操作成功之前，不会被删除。现在的算法目前已经支持了部分失败，虽然没有使用 2PC ，但是也保障了事务的完成。
 
+如果更新的要求只是顺序正确的话，解决方案可以更简单一点。让我们改变一下数据结构来阐述这个问题，数据结构如下图所示。假设你还需要追踪用户的最后购买商品和最后出售商品时间，你可以使用一个类似的策略来通过消息更新数据，不过有一个问题。
 
+![图片 8](http://deliveryimages.acm.org/10.1145/1400000/1394128/fig8.jpg)
 
+假设在很短的时间内一个用户产生了两笔购买，并且我们的消息队列并不保证消息抵达的顺序，那么系统变可能会最终得到一个不正确的最后购买时间值。幸运的是，不需要很大的改动就可以通过下图 SQL 解决这个问题：
 
+![图片 9](http://deliveryimages.acm.org/10.1145/1400000/1394128/fig9.jpg)
 
-This example depends upon being able to peek a message in the queue and remove it once successfully processed. This can be done with two independent transactions if necessary: one on the message queue and one on the user database. Queue operations are not committed unless database operations successfully commit. The algorithm now supports partial failures and still provides transactional guarantees without resorting to 2PC.
+简单的通过不允许将 `last_purchase` 字段更新为更早的时间，可以解决这个问题。除了使用时间戳，你也可以通过一个自增的交易 ID 来实现。
 
-There is a simpler technique for assuring idempotent updates if the only concern is ordering. Let's change our sample schema just a bit to illustrate the challenge and the solution (see figure 8). Suppose you also want to track the last date of sale and purchase for the user. You can rely on a similar scheme of updating the date with a message, but there is one problem.
+## 消息队列的顺序
 
+当一个消息队列系统支持保障以接受消息的顺序来分发消息，这个特性可能会代价非常大，并且通常是没必要的，而且，事实上，给与使用者一个虚假的安全感。
 
+我们之前的例子已经展示了如何不依赖消息队列的消息顺序来实现数据一致性。通常来说，大多数场景下都不会一定要求消息队列来保证顺序。
 
-Suppose two purchases occur within a short time window, and our message system doesn't ensure ordered operations. You now have a situation where, depending upon which order the messages are processed in, you will have an incorrect value for last_purchase. Fortunately, this kind of update can be handled with a minor modification to the SQL, as illustrated in figure 9.
+所以说，一个 Web 应用是一个事件驱动的系统。客户端的请求以任意的顺序到达，每个请求的处理时间都不尽相同。系统中请求的处理顺序也是不确定的，所以消息的入队顺序也是不确定的。所以依赖于消息队列的消息顺序会给与开发者一种错误的安全感。因为这是最简单的现实，错误的输入会导致错误的输出。
 
+## 软状态 / 最终一致性
 
+至此，我们的关注点都在为可用性而牺牲一致性上。所以，我们需要理解软状态和最终一致性给应用设计带来的影响。
 
-By simply not allowing the last_purchase time to go backward in time, you have made the update operations order independent. You can also use this approach to protect any update from out-of-order updates. As an alternative to using time, you can also try a monotonically increasing transaction ID.
+作为一个开发者，我们倾向于以闭环的角度看待我们的系统。我们希望系统是可预测的，即可预测的输入产生可预测的输出。好消息是，以一个闭环的角度，BASE 不会改变整个系统的可预测性，但是仅能从整体的角度来看。
 
-Ordering of Message Queues
-A short side note on ordered message delivery is relevant. Message systems offer the ability to ensure that messages are delivered in the order they are received. This can be expensive to support and is often unnecessary, and, in fact, at times gives a false sense of security.
+用一个简单的例子来解释一下。假设我们有一个用户交易物品的系统。系统中交易的物品的类型不重要，可以是钱，也可以是游戏中的虚拟物品。在这个例子中，我们假设使用消息队列来解耦用户买和卖。
 
-The examples provided here illustrate how message ordering can be relaxed and still provide a consistent view of the database, eventually. The overhead required to relax the ordering is nominal and in most cases is significantly less than enforcing ordering in the message system.
+立刻，这个系统变得感觉不可确定也问题频发。一个物品离开卖家账户到买家账户之间，会有一段空白期。这个空白期的长度取决于消息系统的设计。
 
-Further, a Web application is semantically an event-driven system regardless of the style of interaction. The client requests arrive to the system in arbitrary order. Processing time required per request varies. Request scheduling throughout the components of the systems is nondeterministic, resulting in nondeterministic queuing of messages. Requiring the order to be preserved gives a false sense of security. The simple reality is that nondeterministic inputs will lead to nondeterministic outputs.
+我们从用户的角度来看，这个空白期可能是无感知的，买家和卖家可能都不会感受到。如果这个空白期只有几秒钟，这种场景对于用户来说，完全是可以接受的，并且从用户的角度来看，数据就是一致的，虽然我们使用了软状态和最终一致性。
 
-Soft State/Eventually Consistent
-Up to this point, the focus has been on trading consistency for availability. The other side of the coin is understanding the influence that soft state and eventual consistency has on application design.
+## 事件驱动的架构
 
-As software engineers we tend to look at our systems as closed loops. We think about the predictability of their behavior in terms of predictable inputs producing predictable outputs. This is a necessity for creating correct software systems. The good news in many cases is that using BASE doesn't change the predictability of a system as a closed loop, but it does require looking at the behavior in total.
+如果你需要知道系统的状态何时会最终一致，该怎么办？你可能需要一个当请求的数据最终达到一致时能够更新系统状态的算法。最简单的做法就是，依赖于事件，当系统达到最终一致时，使用事件来通知。
 
-A simple example can help illustrate the point. Consider a system where users can transfer assets to other users. The type of asset is irrelevant—it could be money or objects in a game. For this example, we will assume that we have decoupled the two operations of taking the asset from one user and giving it to the other with a message queue used to provide the decoupling.
+以我们之前的例子来说，如果你需要在物品到达时通知用户，该怎么办？当用户收到物品时，我们可以在系统中产生一个事件，通过事件来通知实际用户。这种方式成为事件驱动的架构（EDA），它可以为系统提供极大的可伸缩性和架构解耦。当然，关于 EDA 的深入探讨超过了本文的范畴。
 
-Immediately, this system feels nondeterministic and problematic. There is a period of time where the asset has left one user and has not arrived at the other. The size of this time window can be determined by the messaging system design. Regardless, there is a lag between the begin and end states where neither user appears to have the asset.
+## 结语
 
-If we consider this from the user's perspective, however, this lag may not be relevant or even known. Neither the receiving user nor the sending user may know when the asset arrived. If the lag between sending and receiving is a few seconds, it will be invisible or certainly tolerable to users who are directly communicating about the asset transfer. In this situation the system behavior is considered consistent and acceptable to the users, even though we are relying upon soft state and eventual consistency in the implementation.
+大规模的拓展系统要求我们有一种新的思考问题的思路。传统的事务模型在这个场景是易错的，且需要多个组件的同时合作。对系统进行解耦然后让它们各自处理数据，为我们的系统提供了可用性和可伸缩性上极大的提升，虽然这以数据的强一致性为代价。BASE 就是以这种思路提供了一个解决方案。
 
-Event-Driven Architecture
-What if you do need to know when state has become consistent? You may have algorithms that need to be applied to the state but only when it has reached a consistent state relevant to an incoming request. The simple approach is to rely on events that are generated as state becomes consistent.
-
-Continuing with the previous example, what if you need to notify the user that the asset has arrived? Creating an event within the transaction that commits the asset to the receiving user provides a mechanism for performing further processing once a known state has been reached. EDA (event-driven architecture) can provide dramatic improvements in scalability and architectural decoupling. Further discussion about the application of EDA is beyond the scope of this article.
-
-Conclusion
-Scaling systems to dramatic transaction rates requires a new way of thinking about managing resources. The traditional transactional models are problematic when loads need to be spread across a large number of components. Decoupling the operations and performing them in turn provides for improved availability and scale at the cost of consistency. BASE provides a model for thinking about this decoupling.
-Q
-
-References
-http://highscalability.com/unorthodox-approach-database-design-coming-shard.
-http://citeseer.ist.psu.edu/544596.html
+参阅文档：
+- http://highscalability.com/unorthodox-approach-database-design-coming-shard.
+- http://citeseer.ist.psu.edu/544596.html
