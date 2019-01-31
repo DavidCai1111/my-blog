@@ -1,5 +1,5 @@
 ---
-title: [译] Base：ACID 的一个替代者
+title: '[译] Base：ACID 的一个替代者'
 date: 2019-01-29 19:24:24
 tags:
 ---
