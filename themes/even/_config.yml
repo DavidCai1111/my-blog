@@ -11,14 +11,14 @@ favicon: /favicon.ico
 # Set feed link (false | default | your feed link)
 # false: disable
 # default: use `atom.xml`, generator for `hexo-generator-feed`
-rss: default
+rss: false
 
 # ===========================================
 # Menu Settings
 # ===========================================
 menu:
   Home: /
-  # Archives: /archives/
+  Archives: /archives/
   # Tags: /tags/
   # Categories: /categories/
   # About: /about/
@@ -57,19 +57,19 @@ reward:
 # Social links Settings
 # ===========================================
 social:
-  email: your@email.com
+  email: davidcai1993@yahoo.com
   stack-overflow:
-  twitter:
+  twitter: https://twitter.com/DavidCai_1993
   facebook:
   linkedin:
   google:
-  github: https://github.com/ahonn
-  weibo:
+  github: https://github.com/DavidCai1993
+  weibo: https://weibo.com/1778884547
   zhihu:
   douban:
   pocket:
   tumblr:
-  instagram:
+  instagram: https://www.instagram.com/davidcai1111
 
 # ===========================================
 # Third Party Services Settings
