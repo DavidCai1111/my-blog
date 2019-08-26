@@ -1,0 +1,24 @@
+{
+  "name": "hexo-theme-even",
+  "version": "2.11.0",
+  "description": "A super simple theme for Hexo",
+  "main": "index.js",
+  "keywords": [
+    "responsive",
+    "simple",
+    "light"
+  ],
+  "author": "ahonn",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ahonn/hexo-theme-even.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ahonn/hexo-theme-even/issues"
+  },
+  "homepage": "https://github.com/ahonn/hexo-theme-even#readme",
+  "devDependencies": {
+    "eslint": "^3.12.0"
+  }
+}
