@@ -23,7 +23,7 @@ function getVerifiedToken(selector) {
     .catch(function (err) { log(err.stack); });
 }
 ```
-
+<!-- more -->
 以下是使用新的箭头函数语法进行重构后的代码：
 
 ```js

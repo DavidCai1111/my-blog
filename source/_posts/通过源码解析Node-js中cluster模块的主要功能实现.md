@@ -10,7 +10,7 @@ tags:
 2. Master是如何将接收的请求传递至worker中进行处理然后响应的？
 
 让我们从Node.js项目的`lib/cluster.js`中的代码里，来一勘究竟。
-
+<!-- more -->
 ## 问题一
 
 为了得到这个问题的解答，我们先从worker进程的初始化看起，master进程在`fork`工作进程时，会为其附上环境变量`NODE_UNIQUE_ID`，是一个从零开始的递增数：

@@ -37,7 +37,7 @@ co(function *() {
   }
 }).catch(console.error);
 ```
-
+<!-- more -->
 在上述代码中，`getSomeDataFromStream`函数会在通过监听`error`事件和`end`事件，来在流报错或没有数据时，完成这个`Promise`。然而在执行代码时，我们很快就会在控制台中看到报警信息：`(node) warning: possible EventEmitter memory leak detected. 11 error listeners added. Use emitter.setMaxListeners() to increase limit.`，因为我们在每次调用该函数时，都为传入的流添加了一个额外的`error`事件监听器和`end`事件监听器。为了避免这种潜在的内存泄露，我们要确保每次函数执行完毕后，清除所有此次调用添加的额外监听器，保持函数无污染：
 
 ```js

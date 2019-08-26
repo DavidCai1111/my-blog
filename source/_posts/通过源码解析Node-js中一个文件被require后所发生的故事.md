@@ -21,7 +21,7 @@ console.log(global.module) // undefined
  - 循环依赖了怎么办？
 
 让我们从 Node.js 项目的 `lib/module.js` 中的代码里，细细看一番，一个文件被 `require` 后，具体发生的故事，从而来解答上面这些问题。
-
+<!-- more -->
 ## 一个文件被 `require` 后所发生的故事
 
 当我们在命令行中敲下：

@@ -23,7 +23,7 @@ tags:
 ```SHELL
 curl --header "Authorization: Basic am9objpzZWNyZXQ=" my-website.com
 ```
-
+<!-- more -->
 在`Node.js`中实现它是非常简单的，以下是一个通过`Express`中间件来实现的例子：
 
 ```js

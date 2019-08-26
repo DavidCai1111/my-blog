@@ -23,7 +23,7 @@ Hello World
 ```
 
 就这么简单，因为 Node.js 把许多细节都已在源码中封装好了，主要代码在 `lib/_http_*.js` 这些文件中，现在就让我们照着上述代码，看看从一个 HTTP 请求的到来直到响应，Node.js 都为我们在源码层做了些什么。
-
+<!-- more -->
 ## HTTP 请求的来到
 
 在 Node.js 中，若要收到一个 HTTP 请求，首先需要创建一个 `http.Server` 类的实例，然后监听它的 `request` 事件。由于 HTTP 协议属于应用层，在下层的传输层通常使用的是 TCP 协议，所以 `net.Server` 类正是 `http.Server` 类的父类。具体的 HTTP 相关的部分，是通过监听 `net.Server` 类实例的 `connection` 事件封装的：

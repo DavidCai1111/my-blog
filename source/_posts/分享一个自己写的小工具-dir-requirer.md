@@ -23,7 +23,7 @@ var github = require('./controllers/github');
 var search = require('./controllers/search');
 ```
 这可以算是许多站点route文件里的小常态了，往往在一个文件(web_router.js)里引用另一个目录(./controllers与./middlewares)里的大量（甚至所有）js文件。这其实是一种不是很爽的编程体验。所以笔者这里自己动手写了一个`以目录为单位`来导入整个目录下所有module的小工具：[dir-requirer][1]，支持导入目录下所有的`.js`,`.json`和`.node`文件(可自定义)，并且返回一个`与目录结构相同`的对象，支持`屏蔽指定文件及目录`。
-
+<!-- more -->
 以下是工具简介：
 --------
 ## 用途

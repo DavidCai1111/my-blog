@@ -21,7 +21,7 @@ co(function* () {
   console.error(err.stack);
 });
 ```
-
+<!-- more -->
 ```js
 co(function *(){
   // resolve multiple promises in parallel

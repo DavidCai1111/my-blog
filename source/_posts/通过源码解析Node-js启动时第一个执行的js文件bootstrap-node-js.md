@@ -38,7 +38,7 @@ int Start(int argc, char** argv) {
 ```
 
 而在 `StartNodeInstance` 函数中，又调用了 `LoadEnvironment` 函数，其中的 `ExecuteString(env, MainSource(env), script_name);` 步骤，便执行了第一个 JavaScript 文件代码：
-
+<!-- more -->
 ```c++
 // src/node.cc
 // ...

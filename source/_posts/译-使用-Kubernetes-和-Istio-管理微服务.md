@@ -22,7 +22,7 @@ tags:
 - 作为一个依赖包存在于微服务应用的代码中。
 - 作为一个 Node Agent 或 Deamon 存在于 Kubernetes 的节点中。
 - 作为一个附属容器（Sidecar container）和应用容器跑在同一个 pod 里。
-
+<!-- more -->
 ### 作为一个依赖包
 
 ![Libray](https://cdn-images-1.medium.com/max/1600/0*ECgnnMHDYXVpQ7Lt.png)

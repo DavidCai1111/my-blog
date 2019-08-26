@@ -19,7 +19,7 @@ tags:
   - `Buffer.concat()`
 
 跟着代码追溯，这些 API 最后都会走进两个内部函数中的一个，来创建 Buffer 实例，这两个内部函数分别是 `createBuffer()` 和 `allocate()`：
-
+<!-- more -->
 ```js
 // lib/buffer.js
 // ...

@@ -20,7 +20,7 @@ tags:
 许多情况下： V8 ES5 >> Chakra ES6 > Chakra ES5 > V8 ES6
 
 Chakra 下的 ES6 特性表现相对更好。
-
+<!-- more -->
 ## Benchmark
 
 [concat-strings.js](benchmarks/concat-strings.js)

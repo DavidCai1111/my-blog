@@ -20,7 +20,7 @@ server.on('connection', function (socket) {
 })
 .listen(1337)
 ```
-
+<!-- more -->
 ```js
 // child.js
 'use strict'

@@ -7,7 +7,7 @@ title: DavidCai
 subtitle: DavidCai1993
 description:
 author: DavidCai
-language: en
+language: zh-Hans
 timezone:
 
 # URL
@@ -63,12 +63,12 @@ pagination_dir: page
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: fexo
+theme: even
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: rsync
-  host: 159.89.154.191
+  host: 165.22.129.136
   user: davidcai
-  root: /home/davidcai/apps/blog
+  root: /home/davidcai/apps/my-blog

@@ -18,7 +18,7 @@ const (
 ```
 
 所支持的压缩级别。
-
+<!-- more -->
 ```go
 const (
     StatusContinue           = 100 // RFC 7231, 6.2.1

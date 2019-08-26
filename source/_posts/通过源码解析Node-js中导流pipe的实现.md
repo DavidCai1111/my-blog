@@ -23,7 +23,7 @@ createReadStream('/path/to/a/big/file').pipe(createWriteStream('/path/to/the/des
  - 平衡读取和写入速度，防止读取速度大大超过写入速度时，出现大量滞留数据。
 
 好，让我们跟随`Node.js`项目里`lib/_stream_readable.js`和`lib/_stream_writable.js`中的代码，逐个解析这三个主要功能的实现。
-
+<!-- more -->
 ### 读取数据
 
 刚创建出的可读流只是一个记录了一些初始状态的空壳，里面没有任何数据，并且其状态不属于官方文档中的流动模式（flowing mode）和暂停模式（paused mode）中的任何一种，算是一种伪暂停模式，因为此时实例的状态中记录它是否为暂停模式的变量还不是标准的布尔值，而是`null`，但又可通过将暂停模式转化为流动模式的行为（调用实例的`resume()`方法），将可读流切换至流动模式。在外部代码中，我们可以手动监听可读流的`data`事件，让其进入流动模式：

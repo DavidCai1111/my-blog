@@ -38,7 +38,7 @@ export class UserController {
   }
 }
 ```
-
+<!-- more -->
 ## 实现
 
 ### `router`装饰器

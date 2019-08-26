@@ -13,7 +13,7 @@ tags:
 
 ### 语法校验
 过去我使用的是[CoffeeLint][2]，现在我通过[babel-eslint][3]来使用[ESLint][4]。遵循[Airbnb ES6 style guide][5]这个语法风格指南。最好将你的编辑器设置成在输入或保存时进行语法检查。[Atom's eslint plugin][6]这个语法校验插件非常不错，你可以将上面的`Airbnb ES6 style guide`链接中的内容，放入你的`.eslintrc`配置文件中。SublimeText也有[类似的插件][7]。
-
+<!-- more -->
 ### 代码转换（Transpiling）
 由于现在离对ES6的完美支持还很远，所以最好还是使用代码转换器（Transpiling），如[Babel][8]，就像在用CoffeeScript时一样。不过和CoffeeScript不同的是，这里有一些值得说明的：
 

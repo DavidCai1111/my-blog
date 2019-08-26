@@ -21,7 +21,7 @@ tags:
  - `X-XSS-Protection`：开启大多现代浏览器内建的对于跨站脚本攻击（XSS）的过滤功能。
  - `X-Content-Type-Options`： 防止浏览器使用`MIME-sniffing`来确定响应的类型，转而使用明确的`content-type`来确定。
  - `Content-Security-Policy`：防止受到跨站脚本攻击以及其他跨站注入攻击。
-
+<!-- more -->
 在`Node.js`中，这些都可以通过使用[Helmet](https://www.npmjs.com/package/helmet)模块轻松设置完毕：
 
 ```js

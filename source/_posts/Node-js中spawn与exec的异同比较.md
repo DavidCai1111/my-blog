@@ -25,7 +25,7 @@ __options 配置对象：__
 **返回值:** ChildProcess对象
 
 利用给定的命令以及参数执行一个新的进程，如果没有参数数组，那么`args`将默认是一个空数组。
-
+<!-- more -->
 ### child_process.exec(command[, options], callback)
 
 **command String** 将要运行的命令，参数使用空格隔开。

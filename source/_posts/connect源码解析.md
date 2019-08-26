@@ -34,7 +34,7 @@ app.use('/',function(req,res){
 http.createServer(app).listen(3000)
 ```
 可以看到，所有的奥秘，都在于`app`这个变量。让我们先来看看`require('connect')`到底返回的是何物。
-
+<!-- more -->
 #### index.js
 ```js
 module.exports = require('./lib/connect');

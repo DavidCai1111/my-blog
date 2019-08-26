@@ -15,7 +15,7 @@ tags:
 ## 更快的添加 / 移除操作
 
 说到添加和移除都十分高效的数据结构，第一个映入脑帘的，自然就是[链表][1]啦。是的，Node.js 就是使用了双向链表，来将 timer 的插入和移除操作的时间复杂度都降至 O(1) 。双向链表的具体实现便在 `lib/internal/linklist.js` 中：
-
+<!-- more -->
 ```js
 // lib/internal/linklist.js
 'use strict';

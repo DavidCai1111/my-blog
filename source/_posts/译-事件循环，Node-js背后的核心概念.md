@@ -18,7 +18,7 @@ tags:
 
 事件，可以是十分底层的操作系统事件，如“文件已经准备好被写入”或“收到了一个新的HTTP请求”。
 事件处理器，则是当指定事件触发时，执行的一段代码。
-
+<!-- more -->
 ## 事件循环中，事件的获取和事件处理器的执行
 
 ![eventloop](http://bytearcher.com/articles/event-loop-10-000ft/event-loop.svg)
