@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "hexo": {
-    "version": "3.9.0"
+    "version": "3.3.8"
   },
   "scripts": {
     "build": "docker build . -t blog:1.0.1",
-    "publish": "npm run build && docker tag blog:1.0.1 davidcai1993/blog:1.0.1 && docker push davidcai1993/blog:1.0.1"
+    "publish": "nvm use 10 && hexo generate && hexo deploy"
   },
   "dependencies": {
     "hexo": "^3.2.0",
@@ -19,7 +19,7 @@
     "hexo-renderer-ejs": "^0.2.0",
     "hexo-renderer-marked": "^0.2.10",
     "hexo-renderer-scss": "^1.2.0",
-    "hexo-renderer-stylus": "^0.3.1",
+    "hexo-renderer-stylus": "^0.1.0",
     "hexo-server": "^0.2.0"
   }
 }
