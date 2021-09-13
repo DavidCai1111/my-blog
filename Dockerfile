@@ -1,4 +1,4 @@
-FROM node:8-alpine
+FROM spurin/hexo:latest
 
 ENV WORKDIR=/app
 WORKDIR ${WORKDIR}
@@ -9,7 +9,7 @@ ENV ELECTRON_MIRROR="https://npm.taobao.org/mirrors/electron/"
 
 COPY package.json .
 
-RUN npm i && npm i -g hexo && hexo generate
+RUN npm install hexo --save && hexo generate
 
 COPY . .
 
