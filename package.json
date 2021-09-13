@@ -1,12 +1,12 @@
 {
   "name": "blog",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "hexo": {
     "version": "3.3.8"
   },
   "scripts": {
-    "build": "docker build . -t blog:1.0.1",
+    "build": "docker build . -t blog:1.1.0",
     "publish": "nvm use 10 && hexo generate && hexo deploy"
   },
   "dependencies": {

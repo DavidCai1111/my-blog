@@ -1,4 +1,4 @@
-FROM spurin/hexo:latest
+FROM node:10
 
 ENV WORKDIR=/app
 WORKDIR ${WORKDIR}
@@ -7,11 +7,9 @@ ENV PHANTOMJS_CDNURL="https://npm.taobao.org/mirrors/phantomjs/"
 ENV SASS_BINARY_SITE="https://npm.taobao.org/mirrors/node-sass/"
 ENV ELECTRON_MIRROR="https://npm.taobao.org/mirrors/electron/"
 
-COPY package.json .
-
-RUN npm install hexo --save && hexo generate
-
 COPY . .
+
+RUN npm i && ./node_modules/.bin/hexo generate
 
 EXPOSE 4000
 
