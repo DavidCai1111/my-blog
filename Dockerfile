@@ -9,7 +9,7 @@ ENV ELECTRON_MIRROR="https://npm.taobao.org/mirrors/electron/"
 
 COPY package.json .
 
-RUN npm i && npm i -g hexo
+RUN npm i && npm i -g hexo && hexo generate
 
 COPY . .
 
