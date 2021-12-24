@@ -198,9 +198,9 @@ function safeTransfer(
 
 首先，由于 Solidity 的 [Function Selector](https://docs.soliditylang.org/en/latest/abi-spec.html#abi-function-selector) 定义中可知，Function Selector 是函数原型（prototype）哈希的前 4 字节，而函数原型是由函数名和它的所有参数类型决定的。所以 `abi.encodeWithSelector` 可以允许代码在未知函数返回类型的情况下，调用函数。在调用之后，代码通过第二个返回值 `data` 来判断返回布尔版本的 `transfer` 是否调用成功，第一个返回值 `bool success` 来判断 `revert()` 版本的调用成功（若调用成功就无返回值即 `data.length == 0`）与否。
 
-## “白嫖”算力
+## “预计算”
 
-由于在 Uniswap V3 中，同一种代币对的交换，可能同时存在许许多多不同价格区间的流动性池，所以，在查询当前给定的 A 代币能交换多少 B 代币（即代币的价格）时，并不能像 V2 那样，抓取一下两边代币在流动性池中的数量（仅需要调用一下 `view` 级别的函数），客户端利用核心公式 `x * y = (x + Δx) * (y − Δy) = k` 一推导，就能够知道。所以在 V3 中，只能像实际交换代币那样，从当前价格开始，一个个头寸池流过去，才能计算出最终可以得到的 B 代币数量。而在 V3 源码种，[交换代币函数](https://github.com/Uniswap/v3-core/blob/main/contracts/UniswapV3Pool.sol#L596)是一个接近 200 行的大函数，且会改变合约的状态，若用户刚想知道一下代币间的汇率，就要支付 Gas 费，也是不合理的。在这种情况下， Uniswap V3 利用了 solidity 中，`revert(string reason)` 函数可以终止当前函数调用，并向调用者退还 Gas 费的机制，做了一个实现，首先我们看一下[交换代币函数](https://github.com/Uniswap/v3-core/blob/main/contracts/UniswapV3Pool.sol#L596)的具体代码：
+由于在 Uniswap V3 中，同一种代币对的交换，可能同时存在许许多多不同价格区间的流动性池，所以，在查询当前给定的 A 代币能交换多少 B 代币（即代币的价格）时，并不能像 V2 那样，抓取一下两边代币在流动性池中的数量（仅需要调用一下 `view` 级别的函数），客户端利用核心公式 `x * y = (x + Δx) * (y − Δy) = k` 一推导，就能够知道。所以在 V3 中，只能像实际交换代币那样，从当前价格开始，一个个头寸池流过去，才能计算出最终可以得到的 B 代币数量。而在 V3 源码种，[交换代币函数](https://github.com/Uniswap/v3-core/blob/main/contracts/UniswapV3Pool.sol#L596)是一个接近 200 行的大函数，且会改变合约的状态，若用户刚想知道一下代币间的汇率，就要支付 Gas 费，也是不合理的。在这种情况下， Uniswap V3 利用了 solidity 中，`revert(string reason)` 函数可以终止当前函数调用，并向调用者退还剩余 Gas 费的机制，做了一个实现，首先我们看一下[交换代币函数](https://github.com/Uniswap/v3-core/blob/main/contracts/UniswapV3Pool.sol#L596)的具体代码：
 
 ```solidity
 function swap(
@@ -265,3 +265,18 @@ function parseRevertReason(bytes memory reason) private pure returns (uint256) {
 ```
 
 从代码中可见，首先使用了 `try-catch` 捕获 `revert` ，然后使用 `assembly` 读取 free memory pointer ，将汇率信息读出来。具体 `assembly` 的运用，可以参阅[这篇文档](https://medium.com/shyft-network-media/solidity-and-inline-assembly-37871dc582a6)。
+
+所以说，虽然 `quoteExactInputSingle` 是 `public` 修饰的，但是其本质是一个 `view` 。
+
+或许你还会问，虽然 `revert()` 函数的确能取消调用，并且退还 Gas 费，那也只是退还剩余部分，已被计算花销了的 Gas 并不会退还，那客户端不是还是要为了抓取一个汇率而付费吗？其实，在客户端（如 [ethers](https://www.npmjs.com/package/ethers)）中，会使用 `contract.callStatic.quoteExactInputSingle(…)` 的方式，让节点以“假装”不会有状态变化的方式来尝试调用一个 `public` 函数，来达到没有 Gas 花费而又抓取了汇率的效果。
+
+正如 [ehters 的 callStatic 函数文档](https://docs.ethers.io/v5/api/contract/contract/#contract-callStatic) 中所描述的：
+
+```js
+// Rather than executing the state-change of a transaction, it is possible to ask a node to
+// pretend that a call is not state-changing and return the result.
+
+// This does not actually change any state, but is free. This in some cases can be used
+// to determine if a transaction will fail or succeed.
+contract.callStatic.METHOD_NAME( ...args [ , overrides ] ) ⇒ Promise< any >
+```
