@@ -198,7 +198,7 @@ function safeTransfer(
 
 首先，由于 Solidity 的 [Function Selector](https://docs.soliditylang.org/en/latest/abi-spec.html#abi-function-selector) 定义中可知，Function Selector 是函数原型（prototype）哈希的前 4 字节，而函数原型是由函数名和它的所有参数类型决定的。所以 `abi.encodeWithSelector` 可以允许代码在未知函数返回类型的情况下，调用函数。在调用之后，代码通过第二个返回值 `data` 来判断返回布尔版本的 `transfer` 是否调用成功，第一个返回值 `bool success` 来判断 `revert()` 版本的调用成功（若调用成功就无返回值即 `data.length == 0`）与否。
 
-## “预计算”
+## 预计算"白嫖"算力
 
 由于在 Uniswap V3 中，同一种代币对的交换，可能同时存在许许多多不同价格区间的流动性池，所以，在查询当前给定的 A 代币能交换多少 B 代币（即代币的价格）时，并不能像 V2 那样，抓取一下两边代币在流动性池中的数量（仅需要调用一下 `view` 级别的函数），客户端利用核心公式 `x * y = (x + Δx) * (y − Δy) = k` 一推导，就能够知道。所以在 V3 中，只能像实际交换代币那样，从当前价格开始，一个个头寸池流过去，才能计算出最终可以得到的 B 代币数量。而在 V3 源码种，[交换代币函数](https://github.com/Uniswap/v3-core/blob/main/contracts/UniswapV3Pool.sol#L596)是一个接近 200 行的大函数，且会改变合约的状态，若用户刚想知道一下代币间的汇率，就要支付 Gas 费，也是不合理的。在这种情况下， Uniswap V3 利用了 solidity 中，`revert(string reason)` 函数可以终止当前函数调用，并向调用者退还剩余 Gas 费的机制，做了一个实现，首先我们看一下[交换代币函数](https://github.com/Uniswap/v3-core/blob/main/contracts/UniswapV3Pool.sol#L596)的具体代码：
 
