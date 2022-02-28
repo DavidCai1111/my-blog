@@ -104,18 +104,17 @@ tags:
 
 ## 多项式承诺是如何工作的
 
-There are three major schemes that are widely used at the moment: bulletproofs, Kate and FRI.
+目前主要有三种多项式承诺的主流方式：bulletproofs, Kate 和 FRI。
 
-Here is a description of Kate commitments by Dankrad Feist: https://dankradfeist.de/ethereum/2020/06/16/kate-polynomial-commitments.html
-Here is a description of bulletproofs by the curve25519-dalek team: https://doc-internal.dalek.rs/bulletproofs/notes/inner_product_proof/index.html, and here is an explanation-in-pictures by myself: https://twitter.com/VitalikButerin/status/1371844878968176647
-Here is a description of FRI by... myself: https://vitalik.ca/general/2017/11/22/starks_part_2.html
-Whoa, whoa, take it easy. Try to explain one of them simply, without shipping me off to even more scary links
-To be honest, they're not that simple. There's a reason why all this math did not really take off until 2015 or so.
+- 关于 Kate 可以参阅：https://dankradfeist.de/ethereum/2020/06/16/kate-polynomial-commitments.html
+- 关于 bulletproofs 可以参阅：https://doc-internal.dalek.rs/bulletproofs/notes/inner_product_proof/index.html 和 https://twitter.com/VitalikButerin/status/1371844878968176647
+- 关于 FRI 可以参阅：https://vitalik.ca/general/2017/11/22/starks_part_2.html
 
-Please?
-In my opinion, the easiest one to understand fully is FRI (Kate is easier if you're willing to accept elliptic curve pairings as a "black box", but pairings are really complicated, so altogether I find FRI simpler).
+## 简单描述多项式承诺的工作方式
 
-Here is how a simplified version of FRI works (the real protocol has many tricks and optimizations that are missing here for simplicity). Suppose that you have a polynomial  with degree . The commitment to  is a Merkle root of a set of evaluations to  at some set of pre-selected coordinates (eg. , though this is not the most efficient choice). Now, we need to add something extra to prove that this set of evaluations actually is a degree  polynomial.
+在我观念中，其中最完全容易理解的是 FRI （如果你把[椭圆曲线对](https://medium.com/@VitalikButerin/exploring-elliptic-curve-pairings-c73c1864e627)当作“黑盒”的话，Kate 也会相对比较容易理解）。
+
+以下是 FRI 是如何工作的简化版本（真实的协议中，会有许多技巧和优化，此处都会省去）。假设有一个阶数小于 n 的多项式 P 。P 的多项式承诺，就是其在一系列点上（例如 {0, 1, 2...8n-1}，尽管这些并不是最优系数）计算结果作为叶子的默克尔树的树根。现在，我们需要添加一些额外的东西来证明这一系列叶子计算结果的确来自于一个阶数小于 n 的多项式。
 
 我们假设多项式 Q 只包含多项式 P 中的偶数位因子，多项式 R 只包含多项式 P 中的奇数位因子。那么如果 P(x) = x^4 + 4 * x^3 + 6 * x^2 + 4 * x + 1，那么 Q(x) = x^2 + 6 * x + 1 ，R(x) = 4 * x + 4 （注意分解的多项式中，只有因子被继承了，阶数会被重新更新，范围是 (0...n/2]）。
 
@@ -145,71 +144,66 @@ Here is how a simplified version of FRI works (the real protocol has many tricks
 - 重复前两步，直至得到的 Sk 阶数足够小
 - 直接检查 Sk 的完整默克尔树
 
-Each step in the process can introduce a bit of "error", but if you add enough checks, then the total error will be low enough that you can prove that  equals a degree  polynomial in at least, say, 80% of positions. And this is sufficient for our use cases: if you want to cheat in a zk-SNARK, you would need to make a polynomial commitment for a fractional value, and the set of evaluations for any fractional expression would differ from the evaluations for any real degree  polynomial in so many positions that any attempt to make a FRI commitment to them would fail.
+上述过程的每一步，都会产生一点“误差”，但是当你把这些步骤放在一起时，误差已经足够低到你可以证明 P(x) 与另一个阶数小于 n 的多项式存在 80% 的相似。这在我们的使用场景中，已经足够了：如果你想在 zk-SNARKs 中作弊，你需要使用一个伪造值生成多项式承诺，经过上述过程后，最终的记过将会很不同。
 
-Also, you can check carefully that the total number and size of the objects in the FRI commitment is logarithmic in the degree, so for large polynomials, the commitment really is much smaller than the polynomial itself.
+另外，你可以在对数时间内检查 FRI 承诺中的所有数字，对于很大的多项式来说，承诺的大小会比本体小很多。
 
-To check equations between different polynomial commitments of this type (eg. check  given FRI commitments to ,  and ), simply randomly select many indices, ask the prover for Merkle branches at each of those indices for each polynomial, and verify that the equation actually holds true at each of those positions.
+在检查多项式承诺之间的等式时（例如，A(x) + B(x) = C(x) ，并且对 A，B，C 进行多项式承诺），仅需随机选择一系列的索引，然后要求验证者提供默克尔证明。
 
-The above description is a highly inefficient protocol; there is a whole host of algebraic tricks that can increase its efficiency by a factor of something like a hundred, and you need these tricks if you want a protocol that is actually viable for, say, use inside a blockchain transaction. In particular, for example,  and  are not actually necessary, because if you choose your evaluation points very cleverly, you can reconstruct the evaluations of  and  that you need directly from evaluations of . But the above description should be enough to convince you that a polynomial commitment is fundamentally possible.
+上述的简化协议，在执行效率上是低下的，有一系列的代数技巧可以用于提高效百倍效率，如果你想要在区块链交易验证中使用，那么你应该去了解它们。例如，当你使用某些技巧来选择运算点时，Q 和 R 都不是必要的，你可以从 P 的计算过程中重组出 Q 和 R 的计算过程。
 
-Finite fields
-In the descriptions above, there was a hidden assumption: that each individual "evaluation" of a polynomial was small. But when we are dealing with polynomials that are big, this is clearly not true. If we take our example from above, , that encodes 816 digits of tau, and evaluate it at , you get.... an 816-digit number containing all of those digits of tau. And so there is one more thing that we need to add. In a real implementation, all of the arithmetic that we are doing here would not be done using "regular" arithmetic over real numbers. Instead, it would be done using modular arithmetic.
+## 有限域
+
+在前文中，有一个隐藏的假设：一个多项式的每一步独立的“计算”都是小的。如果我们面对一个很大的多项式，这个假设显然就不成立了。例如我们最早的一个多项式例子之一：628 * x^271 + 318 * x^270 + 530 * x^269 +...69x + 381，然后计算 x = 1000 处的值，计算量是非常大的。在实际的实现中，这些计算都不会是这些真实的数字进行“常规”的运算。而是会使用取模运算。
 
 We redefine all of our arithmetic operations as follows. We pick some prime "modulus" p. The % operator means "take the remainder of": , , etc (note that the answer is always non-negative, so for example ). We redefine
+我们将我们需要进行的所有计算重新按如下定义。我们取一些素数“模” P ，% 符号表示取模：15 % 7 = 1，53 % 10 = 3 等等。注意，结果一定是非负的（-1 % 10 = 9）。我们重新定义：
 
- %
+![8](https://static.cnodejs.org/FvlIdHCVy3c9lSiiAxae2JPA_Kga)
 
- %
+如果 p = 7 ，那么：
 
- %
+![9](https://static.cnodejs.org/FjJvokGWdkUbaFTUM5r0IuREJpBP)
 
- %
+分配率也依然有效：(2 + 4) * 3 与 2 * 3 + 4 * 3 结果都为 4 。甚至 (a^2 - b^2) = (a - b) * (a + b) 也依然为真。
 
- %
+除法是最复杂的。由于我们想要取模的结果是整数，而整数之间相除的结果经常不为整数。我们使用了[费马小定理](https://en.wikipedia.org/wiki/Fermat%27s_little_theorem)来绕过这个问题：对于任何非零的 x < p ，x^(p - 1) % p = 1。这意味着，对于 x^(p - 2)，再乘以一次 x ，那么取模结果就会为 1 。所以我们可以说 x^(p-2) （该数是一个整数）的取模结果为 1/x 。你也可以通过[扩展欧几里得算法](https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm)来实现一个更快的除法取模操作，这里有这个算法的 [python 实现](https://github.com/ethereum/py_ecc/blob/b036cf5cb37e9b89622788ec714a7da9cdb2e635/py_ecc/secp256k1/secp256k1.py#L34)。
 
-The above rules are all self-consistent. For example, if , then:
+![10](https://vitalik.ca/images/snarks-files/clock.png)
 
- (as  % )
- (as  % )
- (as () %  % )
-More complex identities such as the distributive law also hold:  and  both evaluate to . Even formulas like  =  are still true in this new kind of arithmetic.
+通过取模运算，我们创建一套新的计算系统。并且这与传统数学一样，都是自洽（self-consistent）的。所以我们可以像讨论传统数学中的多项式计算一样，讨论这套新系统中的计算。加密学领域的人喜欢使用基于取模运算的数学（更广泛的说，“有限域”），因为任何取模运算的结果值，都是有上限的。无论你做什么，结果都不会“逃出”一定的集合。在有限域中，即使运算一个 100 万阶的多项式，结果同样也不会超出上限。
 
-Division is the hardest part; we can't use regular division because we want the values to always remain integers, and regular division often gives non-integer results (as in the case of ). We get around this problem using Fermat's little theorem, which states that for any nonzero , it holds that  % . This implies that  gives a number which, if multiplied by  one more time, gives , and so we can say that  (which is an integer) equals . A somewhat more complicated but faster way to evaluate this modular division operator is the extended Euclidean algorithm, implemented in python here.
+## 结合到多项式运算中
 
+我们想证明：对于多项式 P ，0 <= P(n) <= 2^64 ，同时不泄露 P(n) 的具体值。这种场景在区块链交易中很常见，比如你想证明经过一笔交易后，你的余额是非负的，但是你不想透露具体的余额。
 
+我们可以构建一个包含如下声明的证明（简单起见假设 n = 64）：
+- P(0) = 0
+- P(x + 1) = P(x) * 2 + R(x) ，在 x 属于 {0...63} 中
+- R(x) 属于 {0，1} ，在 x 属于 {0...63} 中
 
-Because of how the numbers "wrap around", modular arithmetic is sometimes called "clock math"
+后两个声明可以通过“纯”多项式来表示：
 
+![11](https://static.cnodejs.org/FiTyjD-ldJB9EeYboL0KtmJwU3Mi)
 
-With modular math we've created an entirely new system of arithmetic, and it's self-consistent in all the same ways traditional arithmetic is self-consistent. Hence, we can talk about all of the same kinds of structures over this field, including polynomials, that we talk about in "regular math". Cryptographers love working in modular math (or, more generally, "finite fields") because there is a bound on the size of a number that can arise as a result of any modular math calculation - no matter what you do, the values will not "escape" the set . Even evaluating a degree-1-million polynomial in a finite field will never give an answer outside that set.
+随着 P(i) 的执行，结果集合将不会不断增大。如果 P(4) = 13 ，那么到 4 时，结果集合就是 {0, 1, 3, 6, 13}。在二进制中，1 是 `1`，3 是 `11`，6 是 `110`，13 是 `1101`。所以，P(x + 1) = P(x) * 2 + R(x) 中，只要 R(x) 属于 {0, 1}，结果就会不断地往最后添加 1 比特。任何在 0 <= x <= 2^64 的数通过上述的 64 步构建出来，超过这个范围则不行。
 
-What's a slightly more useful example of a computation being converted into a set of polynomial equations?
-Let's say we want to prove that, for some polynomial , , without revealing the exact value of . This is a common use case in blockchain transactions, where you want to prove that a transaction leaves a balance non-negative without revealing what that balance is.
+## 隐私
 
-We can construct a proof for this with the following polynomial equations (assuming for simplicity ):
+一个问题是，为什么我们知道 P(x) 和 R(x) 的多项式承诺，不会“泄露”有关 P(64) 的信息呢？
 
- across the range
- across the range
-The latter two statements can be restated as "pure" polynomial equations as follows (in this context ):
+好消息是：这些证明都是小型的证明，但是都对应着一些大数据量和复杂的计算。通常，这些证明的体量都没有大到能够泄露任何有用的数据。但是我们有办法把泄露的可能减低为 0 吗？幸运的是，我们可以。
 
- (notice the clever trick:  if and only if )
-The idea is that successive evaluations of  build up the number bit-by-bit: if , then the sequence of evaluations going up to that point would be: . In binary, 1 is 1, 3 is 11, 6 is 110, 13 is 1101; notice how  keeps adding one bit to the end as long as  is zero or one. Any number within the range  can be built up over 64 steps in this way, any number outside that range cannot.
+一个常用的技巧是在多项式中加入一些“软糖因子（fudge factors）”。当我们选择 P 时，会在多项式加入一些小的 Z(x) ：P'(x) = P(x) + Z(x) * E(x) ，E(x) 是一些随机值。这么做并不会影响声明的正确性，但是这会为多项式承诺添加一些额外的噪音。在 FRI 中，上述选取的随机值，不能在计算将要发生的点上（例如 {0...64}）。
 
-Privacy
-But there is a problem: how do we know that the commitments to  and  don't "leak" information that allows us to uncover the exact value of , which we are trying to keep hidden?
+## 总结
 
-There is some good news: these proofs are small proofs that can make statements about a large amount of data and computation. So in general, the proof will very often simply not be big enough to leak more than a little bit of information. But can we go from "only a little bit" to "zero"? Fortunately, we can.
+- 三个最常见的多项式承诺类型有：FRI，Kate 和 bulletproofs
+- 如果将椭圆曲线对视为黑盒的话，Kate 是其中概念最简单的
+- FRI 依赖于哈希，所以也很酷。它通过不断地给多项式降维，然后给出一些抽样值，用以检查各计算步骤结果中的默克尔证明
+- 通过在有限域中的计算，控制了计算结果的上限
+- 多项式承诺会天然的保护多项式中的信息，因为生产的证明比实际的多项式小得多，所以并不会泄露任何有价值的信息。我们甚至还可以通过添加一些随机噪音，将信息泄露的风险降低为 0
 
-Here, one fairly general trick is to add some "fudge factors" into the polynomials. When we choose , add a small multiple of  into the polynomial (that is, set  for some random ). This does not affect the correctness of the statement (in fact,  evaluates to the same values as  on the coordinates that "the computation is happening in", so it's still a valid transcript), but it can add enough extra "noise" into the commitments to make any remaining information unrecoverable. Additionally, in the case of FRI, it's important to not sample random points that are within the domain that computation is happening in (in this case ).
+## 原文链接
 
-Can we have one more recap, please??
-The three most prominent types of polynomial commitments are FRI, Kate and bulletproofs.
-Kate is the simplest conceptually but depends on the really complicated "black box" of elliptic curve pairings.
-FRI is cool because it relies only on hashes; it works by successively reducing a polynomial to a lower and lower-degree polynomial and doing random sample checks with Merkle branches to prove equivalence at each step.
-To prevent the size of individual numbers from blowing up, instead of doing arithmetic and polynomials over the integers, we do everything over a finite field (usually integers modulo some prime p)
-Polynomial commitments lend themselves naturally to privacy preservation because the proof is already much smaller than the polynomial, so a polynomial commitment can't reveal more than a little bit of the information in the polynomial anyway. But we can add some randomness to the polynomials we're committing to to reduce the information revealed from "a little bit" to "zero".
-What research questions are still being worked on?
-Optimizing FRI: there are already quite a few optimizations involving carefully selected evaluation domains, "DEEP-FRI", and a whole host of other tricks to make FRI more efficient. Starkware and others are working on this.
-Better ways to encode computation into polynomials: figuring out the most efficient way to encode complicated computations involving hash functions, memory access and other features into polynomial equations is still a challenge. There has been great progress on this (eg. see PLOOKUP), but we still need more, especially if we want to encode general-purpose virtual machine execution into polynomials.
-Incrementally verifiable computation: it would be nice to be able to efficiently keep "extending" a proof while a computation continues. This is valuable in the "single-prover" case, but also in the "multi-prover" case, particularly a blockchain where a different participant creates each block. See Halo for some recent work on this.
+https://vitalik.ca/general/2021/01/26/snarks.html
