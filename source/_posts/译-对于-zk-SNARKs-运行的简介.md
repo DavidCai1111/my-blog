@@ -117,33 +117,34 @@ In my opinion, the easiest one to understand fully is FRI (Kate is easier if you
 
 Here is how a simplified version of FRI works (the real protocol has many tricks and optimizations that are missing here for simplicity). Suppose that you have a polynomial  with degree . The commitment to  is a Merkle root of a set of evaluations to  at some set of pre-selected coordinates (eg. , though this is not the most efficient choice). Now, we need to add something extra to prove that this set of evaluations actually is a degree  polynomial.
 
-Let  be the polynomial only containing the even coefficients of , and  be the polynomial only containing the odd coefficients of . So if , then  and  (note that the degrees of the coefficients get "collapsed down" to the range ).
+我们假设多项式 Q 只包含多项式 P 中的偶数位因子，多项式 R 只包含多项式 P 中的奇数位因子。那么如果 P(x) = x^4 + 4 * x^3 + 6 * x^2 + 4 * x + 1，那么 Q(x) = x^2 + 6 * x + 1 ，R(x) = 4 * x + 4 （注意分解的多项式中，只有因子被继承了，阶数会被重新更新，范围是 (0...n/2]）。
 
-Notice that  (if this isn't immediately obvious to you, stop and think and look at the example above until it is).
+所以 P(x) = Q(x^2) + x * R(x^2)。
 
-We ask the prover to provide Merkle roots for  and . We then generate a random number  and ask the prover to provide a "random linear combination" .
+我们会要求证明者提供 Q(x) 与 R(x) 的默克尔证明。然后生成一个随机数 r ，并且要求证明者提供一个“随机线性组合（random linear combination）”：S(x) = Q(x) + r * R(x) 。
 
-We pseudorandomly sample a large set of indices (using the already-provided Merkle roots as the seed for the randomness as before), and ask the prover to provide the Merkle branches for , ,  and  at these indices. At each of these provided coordinates, we check that:
+基于之前提供的默克尔树根作为种子，我们伪随机地生成一个大的索引集合。然后要求证明者提供这些索引在 P，Q，R 和 S 中值得默克尔证明。对于这些索引坐标，我们检查：
 
- actually does equal
- actually does equal
-If we do enough checks, then we can be convinced that the "expected" values of  are different from the "provided" values in at most, say, 1% of cases.
+- P(x) 实际等于 Q(x^2) + x * R(x^2)
+- S(x) 实际等于 Q(x) + r * R(x)
 
-Notice that  and  both have degree . Because  is a linear combination of  and ,  also has degree . And this works in reverse: if we can prove  has degree , then the fact that it's a randomly chosen combination prevents the prover from choosing malicious  and  with hidden high-degree coefficients that "cancel out", so  and  must both be degree , and because , we know that  must have degree .
+如果我们做足够多次的检查，那么我们会相信，可能就最多 1% 的概率，S(x) 的提供值可能会和“预期”值不同。
 
-From here, we simply repeat the game with , progressively "reducing" the polynomial we care about to a lower and lower degree, until it's at a sufficiently low degree that we can check it directly.
+值得注意的是，Q 与 R 的最高阶都小于 n/2 。由于多项式 S 是 Q 和 R 的一个线性组合，所以 S 的阶数也小于 n/2 。反过来说，如果我们能证明 S 的阶数小于 n/2 ，并且随机选择的 r 阻止了证明者可以选择 Q 和 R 来隐藏最高阶的因子。所以 Q 和 R 的最高阶也必须小于 n/2 ，然后由于 P(x) = Q(x^2) + x * R(x^2) ，所以 P 的最高阶也小于 n 。
 
+所以，我们使用 S 继续重复上文的交互式游戏，不断的“减小”我们关心的多项式的阶数，直至它的阶数能被直接检查：
 
+![7](https://vitalik.ca/images/snarks-files/FRI.png)
 
-As in the previous examples, "Bob" here is an abstraction, useful for cryptographers to mentally reason about the protocol. In reality, Alice is generating the entire proof herself, and to prevent her from cheating we use Fiat-Shamir: we choose each randomly samples coordinate or r value based on the hash of the data generated in the proof up until that point.
+在上述例子中，Bob 仅仅是一个“抽象”，用于演示协议。现实中，Alice 会仅靠自己生成完整的证明，并且我们使用 [Fiat-Shamir 变换](https://en.wikipedia.org/wiki/Fiat%E2%80%93Shamir_heuristic)来防止她欺诈：我们根据截至该点为止生成的证明的哈希，来随机选择采样点。
 
-A full "FRI commitment" to  (in this simplified protocol) would consist of:
+所以一个简化版的 FRI 承诺将会包含：
+- P 执行结果的默克尔树根
+- Q，R，S1 执行结果的默克尔树根
+- 随机选择 P，Q，R，S1 的计算过程默克尔树中的分支，用以检查 S1 确实是从 P 衍生而来
+- 重复前两步，直至得到的 Sk 阶数足够小
+- 直接检查 Sk 的完整默克尔树
 
-The Merkle root of evaluations of
-The Merkle roots of evaluations of , ,
-The randomly selected branches of , , ,  to check  is correctly "reduced from"
-The Merkle roots and randomly selected branches just as in steps (2) and (3) for successively lower-degree reductions  reduced from ,  reduced from , all the way down to a low-degree  (this gets repeated  times in total)
-The full Merkle tree of the evaluations of  (so we can check it directly)
 Each step in the process can introduce a bit of "error", but if you add enough checks, then the total error will be low enough that you can prove that  equals a degree  polynomial in at least, say, 80% of positions. And this is sufficient for our use cases: if you want to cheat in a zk-SNARK, you would need to make a polynomial commitment for a fractional value, and the set of evaluations for any fractional expression would differ from the evaluations for any real degree  polynomial in so many positions that any attempt to make a FRI commitment to them would fail.
 
 Also, you can check carefully that the total number and size of the objects in the FRI commitment is logarithmic in the degree, so for large polynomials, the commitment really is much smaller than the polynomial itself.
