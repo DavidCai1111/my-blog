@@ -19,7 +19,7 @@
     "hexo-renderer-ejs": "^0.2.0",
     "hexo-renderer-marked": "^0.2.10",
     "hexo-renderer-scss": "^1.2.0",
-    "hexo-renderer-stylus": "^0.1.0",
+    "hexo-renderer-stylus": "^2.1.0",
     "hexo-server": "^0.2.0"
   }
 }
