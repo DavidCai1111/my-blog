@@ -10,7 +10,7 @@
     "publish": "nvm use 10 && hexo generate && hexo deploy"
   },
   "dependencies": {
-    "hexo": "^3.2.0",
+    "hexo": "^3.9.0",
     "hexo-deployer-rsync": "^0.1.2",
     "hexo-generator-archive": "^0.1.4",
     "hexo-generator-category": "^0.1.3",
